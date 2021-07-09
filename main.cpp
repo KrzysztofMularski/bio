@@ -8,6 +8,11 @@
 
 using namespace std;
 
+struct Pair{
+    int index;
+    int weight;
+};
+
 class Dna {
 private:
     string dna;
@@ -32,7 +37,7 @@ public:
 
         // generowanie (m = n - k + 1) oligonukleotydów o długości k
         int m = n - k + 1;
-        dna = "ACTGAACTGG"; // temp
+        //dna = "ACTGAACTGG"; // temp
         oligos = vector<string>(m, string(k, 'A'));
         for (int i=0; i<m; i++) {
             oligos[i] = dna.substr(i, k);
@@ -91,7 +96,7 @@ vector<int> calcOligosWeights(const string& s1, const string& s2) {
     int size = s1.size();
 
     if (s1 == s2) {
-        weights.push_back(0);
+        weights.push_back(k+1);
         return weights;
     }
 
@@ -100,7 +105,7 @@ vector<int> calcOligosWeights(const string& s1, const string& s2) {
             weights.push_back(i);
 
     if (weights.size() == 0)
-        weights.push_back(-1);
+        weights.push_back(k);
 
     return weights;
 }
@@ -111,15 +116,83 @@ void generateGraph(vector<string>& oligos, vector<int>** graph, int m) {
             graph[i][j] = calcOligosWeights(oligos[i], oligos[j]);
 }
 
-void greedy(vector<string>& oligos) {
+int getIndex(vector<string>& v, string s)
+{
+    auto it = find(v.begin(), v.end(), s);
+ 
+    if (it != v.end())
+        return it - v.begin();
+    else
+        return -1;
+}
 
+Pair minWeight(vector<int>* graph, string oligo, int m, vector<int>& visited)
+{
+    Pair next;
+    int temp, mini = k;
+
+    for(int i = 0; i < m; i++)
+    {
+        auto it = find(visited.begin(), visited.end(), i);
+        if(it == visited.end()){
+            temp = *min_element(graph[i].begin(), graph[i].end());
+            if(temp < mini){
+                mini = temp;
+                next.weight = temp;
+                next.index = i;
+            }  
+        }      
+    }
+
+    return next;
+}
+
+vector<Pair> greedy(vector<string>& oligos, vector<int>** graph, int m, string first) {
+    vector<int> visited;
+    vector<Pair> result;
+    Pair temp, toPush;
+    int currentLength = k;
+
+    int index = getIndex(oligos, first);
+    int previousIndex;
+
+    visited.push_back(index);
+    temp = minWeight(graph[index], first, m, visited);
+    previousIndex = temp.index;
+    toPush.index = index;
+    toPush.weight = temp.weight;
+    result.push_back(toPush);
+
+    while(currentLength < n)
+    {
+        temp = minWeight(graph[previousIndex], oligos[toPush.index], m, visited);
+
+        if(currentLength + temp.weight <= n)
+        {        
+            toPush.index = temp.index;
+            toPush.weight = temp.weight;
+            visited.push_back(toPush.index);
+            result.push_back(toPush);
+            currentLength += temp.weight;
+        }
+    }
+
+    return result;
+}
+
+string makeDNA(vector<Pair> result, vector<string>& oligos)
+{
+    string dna;
+    dna += oligos[result[0].index];
+    for(int i = 1; i < result.size(); i++)
+        dna += oligos[result[i].index].substr(k-result[i-1].weight);
+
+    return dna;
 }
 
 int main() {
 
     Dna dna;
-
-    cout<<"hello";
 
     string dnaStr = dna.getDna();
     vector<string> oligos = dna.getOligos();
@@ -139,13 +212,24 @@ int main() {
 
     int m = oligos.size();
 
+    cout<<"generate"<<endl;
+
     vector<int>** graph = new vector<int>* [oligos.size()];
     for (int i=0; i<m; i++) {
         graph[i] = new vector<int> [oligos.size()];
     }
 
     generateGraph(oligos, graph, m);
+
+    cout<<"result";
     
+    vector<Pair> result = greedy(oligos, graph, m, first);
+
+    cout<<"greeedy";
+    string resultDNA = makeDNA(result, oligos);
+
+    cout<<resultDNA;
+    cout<<endl;
 
 
     for (int i=0; i<m; i++)
