@@ -119,6 +119,8 @@ int main() {
 
     Dna dna;
 
+    cout<<"hello";
+
     string dnaStr = dna.getDna();
     vector<string> oligos = dna.getOligos();
     string first = dna.getFirst();
