@@ -2,9 +2,10 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <iomanip>
 
-#define n 10   // długość DNA
-#define k 4     // długość oligonukleotydu
+#define n 20   // długość DNA
+#define k 4    // długość oligonukleotydu
 
 using namespace std;
 
@@ -37,7 +38,7 @@ public:
 
         // generowanie (m = n - k + 1) oligonukleotydów o długości k
         int m = n - k + 1;
-        //dna = "ACTGAACTGG"; // temp
+        // dna = "CCCGA"; // temp
         oligos = vector<string>(m, string(k, 'A'));
         for (int i=0; i<m; i++) {
             oligos[i] = dna.substr(i, k);
@@ -78,9 +79,44 @@ public:
     }
 
     string getFirst() {
-        return oligos[0];
+        return dna.substr(0, k);
     }
 };
+
+int minimum(int a, int b, int c) {
+    return a < b ? (a < c ? a : c) : (b < c ? b : c);
+}
+
+int levenshteinDistance(std::string& str1, std::string& str2) {
+    int p = str1.size();
+    int q = str2.size();
+    int** dist = new int* [p+1];
+    for (int i=0; i<p+1; i++)
+        dist[i] = new int [q+1];
+
+    for (int i=0; i<=p; i++)
+        dist[i][0] = i;
+    for (int j=1; j<=q; j++)
+        dist[0][j] = j;
+    
+    for (int i=1; i<=p; i++)
+        for (int j=1; j<=q; j++) {
+            int cost = str1[i-1] == str2[j-1] ? 0 : 1;
+            dist[i][j] = minimum(
+                dist[i-1][j] + 1,       // deletion
+                dist[i][j-1] + 1,       // insertion
+                dist[i-1][j-1] + cost   // replacement
+            );
+        }
+
+    int distance = dist[p][q];
+
+    for (int i=0; i<p+1; i++)
+        delete [] dist[i];
+    delete [] dist;
+
+    return distance;
+}
 
 void toSet(vector<string>& oligos) {
     auto end = oligos.end();
@@ -126,68 +162,73 @@ int getIndex(vector<string>& v, string s)
         return -1;
 }
 
-Pair minWeight(vector<int>* graph, string oligo, int m, vector<int>& visited)
-{
-    Pair next;
-    int temp, mini = k;
-
+Pair findBest(vector<int>* graphRow, int m, vector<int>& visited) {
+    Pair best;
+    best.index = -1;
+    best.weight = -1;
+    int bestCellWeight, min = k+2;
     for(int i = 0; i < m; i++)
     {
         auto it = find(visited.begin(), visited.end(), i);
         if(it == visited.end()){
-            temp = *min_element(graph[i].begin(), graph[i].end());
-            if(temp < mini){
-                mini = temp;
-                next.weight = temp;
-                next.index = i;
-            }  
+            bestCellWeight = *min_element(graphRow[i].begin(), graphRow[i].end());
+            if(bestCellWeight < min){
+                min = bestCellWeight;
+                best.weight = bestCellWeight;
+                best.index = i;
+            }
         }      
     }
-
-    return next;
+    return best;
 }
 
 vector<Pair> greedy(vector<string>& oligos, vector<int>** graph, int m, string first) {
     vector<int> visited;
     vector<Pair> result;
-    Pair temp, toPush;
-    int currentLength = k;
+    int currentDNAlength = k;
+    Pair pair;
+    
+    int indexFirst = getIndex(oligos, first);
+    pair.index = indexFirst;
+    pair.weight = -1;
+    result.push_back(pair);
+    visited.push_back(indexFirst);
+    int index = indexFirst;
 
-    int index = getIndex(oligos, first);
-    int previousIndex;
-
-    visited.push_back(index);
-    temp = minWeight(graph[index], first, m, visited);
-    previousIndex = temp.index;
-    toPush.index = index;
-    toPush.weight = temp.weight;
-    result.push_back(toPush);
-
-    while(currentLength < n)
-    {
-        temp = minWeight(graph[previousIndex], oligos[toPush.index], m, visited);
-
-        if(currentLength + temp.weight <= n)
-        {        
-            toPush.index = temp.index;
-            toPush.weight = temp.weight;
-            visited.push_back(toPush.index);
-            result.push_back(toPush);
-            currentLength += temp.weight;
-        }
+    while(true) {
+        pair = findBest(graph[index], m, visited);
+        if (pair.index == -1)
+            break;
+        currentDNAlength += pair.weight;
+        if (currentDNAlength > n)
+            break;
+        result.push_back(pair);
+        visited.push_back(pair.index);
+        index = pair.index;
     }
-
     return result;
 }
 
 string makeDNA(vector<Pair> result, vector<string>& oligos)
 {
-    string dna;
-    dna += oligos[result[0].index];
-    for(int i = 1; i < result.size(); i++)
-        dna += oligos[result[i].index].substr(k-result[i-1].weight);
-
+    string dna = oligos[result[0].index];
+    for (int i=1; i<result.size(); i++)
+        dna += oligos[result[i].index].substr(k-result[i].weight);
+    
     return dna;
+}
+
+void printGraph(vector<int>** graph, int m) {
+    cout << "GRAPH: " << endl;
+    for (int i=0; i<m; i++) {
+        for (int j=0; j<m; j++) {
+            for (int l=0; l<graph[i][j].size(); l++) {
+                cout << graph[i][j][l] << ", ";
+            }
+            cout << "|";
+        }
+        cout << endl;
+    }
 }
 
 int main() {
@@ -198,17 +239,17 @@ int main() {
     vector<string> oligos = dna.getOligos();
     string first = dna.getFirst();
     
-    cout << "dnaStr:" << dnaStr << endl;
-    cout << "oligos:" << endl;
-    for (int i=0; i<oligos.size(); i++) {
-        cout << oligos[i] << endl;
-    }
+    cout << "dnaStr: " << dnaStr << endl;
+    // cout << "oligos:" << endl;
+    // for (int i=0; i<oligos.size(); i++) {
+    //     cout << oligos[i] << endl;
+    // }
 
     toSet(oligos);
-    cout << "oligos:" << endl;
-    for (int i=0; i<oligos.size(); i++) {
-        cout << oligos[i] << endl;
-    }
+    // cout << "oligos:" << endl;
+    // for (int i=0; i<oligos.size(); i++) {
+    //     cout << oligos[i] << endl;
+    // }
 
     int m = oligos.size();
 
@@ -220,17 +261,18 @@ int main() {
     }
 
     generateGraph(oligos, graph, m);
+    // printGraph(graph, m);
 
-    cout<<"result";
+    cout<<"greedy"<<endl;
     
     vector<Pair> result = greedy(oligos, graph, m, first);
 
-    cout<<"greeedy";
+    cout<<"makeDNA"<<endl;
     string resultDNA = makeDNA(result, oligos);
 
-    cout<<resultDNA;
-    cout<<endl;
+    cout<<resultDNA<<endl;
 
+    cout << "Distance: " << levenshteinDistance(dnaStr, resultDNA) << endl;
 
     for (int i=0; i<m; i++)
         delete [] graph[i];
