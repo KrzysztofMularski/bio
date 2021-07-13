@@ -8,7 +8,7 @@ int minimum(int a, int b, int c) {
     return a < b ? (a < c ? a : c) : (b < c ? b : c);
 }
 
-int levenshteinDistance(std::string& str1, std::string& str2) {
+int levenshteinDistance(string& str1, string& str2) {
     int p = str1.size();
     int q = str2.size();
     int** dist = new int* [p+1];

@@ -9,16 +9,6 @@ private:
 public:
 
     Dna() {
-        init();
-    }
-
-    ~Dna() {}
-
-    static bool strCompare(string a, string b) {
-        return (a < b);
-    }
-
-    void init() {
         dna = string(n, 'A');
         srand(time(NULL));
 
@@ -34,18 +24,19 @@ public:
         // generowanie (m = n - k + 1) oligonukleotydów o długości k
         int m = n - k + 1;
         // dna = "CCCGA"; // temp
-        oligos = vector<string>(m, string(k, 'A'));
+        oligos = vector<string>(m);
         for (int i=0; i<m; i++) {
             oligos[i] = dna.substr(i, k);
         }
 
         // oligonukleotydy przed posortowaniem
+        
         // for (int i=0; i<m; i++)
         //     std::cout << "i=" << i << ": " << oligos[i] << std::endl;
         // std::cout << dna << std::endl;
 
         // mieszanie oligonukleotydów - sortowanie w kolejności alfabetycznej
-        sort(oligos.begin(), oligos.end(), strCompare);
+        sort(oligos.begin(), oligos.end(), [](string a, string b) {return a < b;});
 
         // oligonukleotydy po posortowaniu
         // for (int i=0; i<m; i++)
@@ -62,6 +53,8 @@ public:
         // }
         // std::cout << "Total errors: " << err << std::endl;
     }
+
+    ~Dna() {}
 
     string getDna() {
         return dna;

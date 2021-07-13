@@ -12,46 +12,27 @@ int main() {
 
     string dnaStr = dna.getDna();
     vector<string> oligos = dna.getOligos();
-    string first = dna.getFirst();
+    string firstOligo = dna.getFirst();
     
-    cout << "dnaStr: " << dnaStr << endl;
-    // cout << "oligos:" << endl;
-    // for (int i=0; i<oligos.size(); i++) {
-    //     cout << oligos[i] << endl;
-    // }
+    printDNA(dnaStr);
+    // printOligos(oligos);
 
-    toSet(oligos);
-    // cout << "oligos:" << endl;
-    // for (int i=0; i<oligos.size(); i++) {
-    //     cout << oligos[i] << endl;
-    // }
+    DnaStructure structure(oligos);
+    structure.generateErrors();
+    // printOligos(oligos);
+    structure.generateGraph();
+    structure.populateGraph();    
 
-    int m = oligos.size();
+    // printGraph(structure);
 
-    cout<<"generate"<<endl;
+    Greedy greedy(&structure, firstOligo);
+    greedy.calculateResult();
+    vector<Pair> result = greedy.getResult();
 
-    vector<int>** graph = new vector<int>* [oligos.size()];
-    for (int i=0; i<m; i++) {
-        graph[i] = new vector<int> [oligos.size()];
-    }
-
-    generateGraph(oligos, graph, m);
-    // printGraph(graph, m);
-
-    cout<<"greedy"<<endl;
-    
-    vector<Pair> result = greedy(oligos, graph, m, first);
-
-    cout<<"makeDNA"<<endl;
     string resultDNA = makeDNA(result, oligos);
 
-    cout<<resultDNA<<endl;
-
-    cout << "Distance: " << levenshteinDistance(dnaStr, resultDNA) << endl;
-
-    for (int i=0; i<m; i++)
-        delete [] graph[i];
-    delete [] graph;
+    printResultDNA(resultDNA);
+    printDistance(levenshteinDistance(dnaStr, resultDNA));    
 
     return 0;
 }
