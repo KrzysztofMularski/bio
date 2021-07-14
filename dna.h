@@ -1,4 +1,5 @@
 #include "additives.h"
+#include "printers.h"
 
 #pragma once
 
@@ -12,7 +13,7 @@ public:
         dna = string(n, 'A');
         srand(time(NULL));
 
-        // generowanie dna o długości n
+        // generating a DNA of length n
         for (int i=0; i<n; i++) {
             dna[i] = 'A' + rand() % 4;
             if (dna[i] == 'B')
@@ -21,7 +22,7 @@ public:
                 dna[i] = 'G';
         }
 
-        // generowanie (m = n - k + 1) oligonukleotydów o długości k
+        // generating (m = n - k + 1) oligonucleotides of length k
         int m = n - k + 1;
         // dna = "CCCGA"; // temp
         oligos = vector<string>(m);
@@ -29,29 +30,21 @@ public:
             oligos[i] = dna.substr(i, k);
         }
 
-        // oligonukleotydy przed posortowaniem
-        
-        // for (int i=0; i<m; i++)
-        //     std::cout << "i=" << i << ": " << oligos[i] << std::endl;
-        // std::cout << dna << std::endl;
+        // oligonucleotides before sorting
+        // print("Oligonucleotides before sorting:");
+        // printOligos(oligos);
+        // printDNA(dna);
 
-        // mieszanie oligonukleotydów - sortowanie w kolejności alfabetycznej
-        sort(oligos.begin(), oligos.end(), [](string a, string b) {return a < b;});
+        // oligonucleotides mixing - sorting in alphabetical order
+        sort(oligos.begin(), oligos.end(), [](const string& a, const string& b) {return a < b;});
 
-        // oligonukleotydy po posortowaniu
-        // for (int i=0; i<m; i++)
-        //     std::cout << "i=" << i << ": " << oligos[i] << std::endl;
-        // std::cout << dna << std::endl;
+        // oligonucleotides after sorting
+        // print("Oligonucleotides after sorting:");
+        // printOligos(oligos);
+        // printDNA(dna);
 
-        // (niepotrzebne) sprawdzenie czy jest po kolei
-        // int err = 0;
-        // for (int i=0; i<m-1; i++) {
-        //     if (oligos[i].compare(oligos[i+1]) > 0) {
-        //         std::cout << "error: " << i << " - " << i+1 << std::endl;
-        //         err++;
-        //     }
-        // }
-        // std::cout << "Total errors: " << err << std::endl;
+        // (unnecessary) checking if it is in order
+        // printErrors(oligos);
     }
 
     ~Dna() {}

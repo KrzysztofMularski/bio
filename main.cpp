@@ -32,7 +32,7 @@ int main() {
     string resultDNA = makeDNA(result, oligos);
 
     printResultDNA(resultDNA);
-    printDistance(levenshteinDistance(dnaStr, resultDNA));    
+    printDistance(levenshteinDistance(dnaStr, resultDNA));
 
     return 0;
 }

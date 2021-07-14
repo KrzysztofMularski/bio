@@ -1,13 +1,18 @@
 #include "additives.h"
+#include "dnaStructure.h"
 
 #pragma once
+
+void print(const char* arr) {
+    cout << arr << endl;
+}
 
 void printDNA(const string dna) {
     cout << "DNA:\n" << dna << endl;
 }
 
 void printOligos(const vector<string>& oligos) {
-    cout << "Oligos: " << endl;
+    cout << "Oligonucleotides: " << endl;
     for (int i=0; i<oligos.size(); i++) {
         cout << oligos[i] << endl;
     }
@@ -34,4 +39,15 @@ void printResultDNA(const string resultDNA) {
 
 void printDistance(const int distance) {
     cout << "Distance: " << distance << endl;
+}
+
+void printErrors(const vector<string>& oligos) {
+    int err = 0;
+    for (int i=0; i<oligos.size()-1; i++) {
+        if (oligos[i].compare(oligos[i+1]) > 0) {
+            cout << "Error: " << i << " - " << i+1 << endl;
+            err++;
+        }
+    }
+    cout << "Total errors: " << err << endl;
 }
