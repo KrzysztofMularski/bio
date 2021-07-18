@@ -2,6 +2,7 @@
 
 #pragma once
 
+
 class DnaStructure {
 private:
     vector<string> oligos;
