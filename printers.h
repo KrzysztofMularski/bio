@@ -1,7 +1,13 @@
+#include <iomanip>
 #include "additives.h"
 #include "dnaStructure.h"
 
 #pragma once
+
+void printInitials() {
+    cout << setw(2) << left << n << " - DNA length" << endl;
+    cout << setw(2) << left << k << " - Oligonucleotide length" << endl;
+}
 
 void print(const char* arr) {
     cout << arr << endl;

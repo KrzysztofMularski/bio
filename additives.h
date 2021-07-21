@@ -10,7 +10,7 @@ struct Pair{
     int weight;
 };
 
-#define n 20   // długość DNA
-#define k 4    // długość oligonukleotydu
+#define n 20   // DNA length
+#define k 4    // oligonucleotide length
 
 using namespace std;

@@ -8,6 +8,8 @@
 
 int main() {
 
+    printInitials();
+
     Dna dna;
 
     string dnaStr = dna.getDna();
