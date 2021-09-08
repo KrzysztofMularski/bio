@@ -27,9 +27,12 @@ int main() {
 
     // printGraph(structure);
 
-    Greedy greedy(&structure, firstOligo);
+    Greedy greedy(structure, firstOligo);
     greedy.calculateResult();
     vector<Pair> result = greedy.getResult();
+
+
+    Tabu tabu(dna, oligos);
 
     string resultDNA = makeDNA(result, oligos);
 

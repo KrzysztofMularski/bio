@@ -2,16 +2,17 @@
 
 #pragma once
 
-class tabu{
+class Tabu{
     Dna dna;
     vector<string> oligos;
-    DnaStructure structure(vector<string> oligos);
+    // DnaStructure structure;
 public:
-    tabu(Dna dna, vector<string> oligos): dna(dna), oligos(oligos) {
-        structure(oligos);
-    }
+    Tabu(Dna dna, vector<string> oligos): dna(dna), oligos(oligos) { }
 
+    void test() {
+        // printOligos(structure.getOligos());
+    }
     
 
-    ~tabu() {}
+    ~Tabu() {}
 };
