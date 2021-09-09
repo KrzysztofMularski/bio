@@ -1,5 +1,8 @@
+#include <random>
+#include <time.h>
 #include "additives.h"
 #include "printers.h"
+#include "locator.h"
 
 #pragma once
 
@@ -7,6 +10,9 @@ class Dna {
 private:
     string dna;
     vector<string> oligos;
+    vector<Location> locations;
+    Locator locator;
+
 public:
 
     Dna() {
@@ -25,10 +31,16 @@ public:
         // generating (m = n - k + 1) oligonucleotides of length k
         int m = n - k + 1;
         // dna = "CCCGA"; // temp
-        oligos = vector<string>(m);
+        vector<OligosWithLocation> oligosWithLocation(m);
         for (int i=0; i<m; i++) {
-            oligos[i] = dna.substr(i, k);
+            oligosWithLocation[i] = {dna.substr(i, k), i};
         }
+
+
+        // oligos = vector<string>(m);
+        // for (int i=0; i<m; i++) {
+        //     oligos[i] = dna.substr(i, k);
+        // }
 
         // oligonucleotides before sorting
         // print("Oligonucleotides before sorting:");
@@ -36,7 +48,28 @@ public:
         // printDNA(dna);
 
         // oligonucleotides mixing - sorting in alphabetical order
-        sort(oligos.begin(), oligos.end(), [](const string& a, const string& b) {return a < b;});
+        sort(
+            oligosWithLocation.begin(),
+            oligosWithLocation.end(),
+            [](const OligosWithLocation& a, const OligosWithLocation& b) {
+                return a.oligo < b.oligo;
+            });
+
+        // sort(oligos.begin(), oligos.end(), [](const string& a, const string& b) {return a < b;});
+
+        oligos = vector<string>(m);
+        locations = vector<Location>(m);
+        for (int i=0; i<m; i++) {
+            oligos[i] = oligosWithLocation[i].oligo;
+            
+            int index = oligosWithLocation[i].index;
+            Location loc = locator.getLocation(index, Locator::GAUSSIAN);
+            // Location loc = Locator::getLocation(index, Locator::LINEAR);
+
+            locations[i] = loc;
+        }
+
+
 
         // oligonucleotides after sorting
         // print("Oligonucleotides after sorting:");
@@ -60,4 +93,9 @@ public:
     string getFirst() {
         return dna.substr(0, k);
     }
+
+    vector<Location> getLocations() {
+        return locations;
+    }
+
 };
