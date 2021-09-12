@@ -11,6 +11,7 @@ private:
 
     vector<int> visited;
     vector<Pair> greedyResult;
+    vector<string> greedyResultOligos;
 public:
     Greedy(
         DnaStructure& structure,
@@ -50,6 +51,11 @@ public:
             ii++;
         }
         greedyResult = result;
+        
+        for(auto pair: result)
+        {
+            greedyResultOligos.push_back(oligos[pair.index]);
+        }
     }
 
     // Pair findBest(int index) {
@@ -157,5 +163,9 @@ public:
 
     vector<Pair> getResult() const {
         return greedyResult;
+    }
+
+    vector<string> getResultOligos() const {
+        return greedyResultOligos;
     }
 };

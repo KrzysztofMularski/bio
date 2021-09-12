@@ -24,5 +24,11 @@ int main() {
 
     manager.runAll();
 
+    cout<<"--------------------------------------------------------------"<<endl;
+    string testTabu;
+    Tabu tabu(resultDNA, oligos, structure.getGraph());
+    testTabu = tabu.compaction();
+    cout<<"test Tabu: "<<testTabu<<endl;
+
     return 0;
 }
