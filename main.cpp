@@ -1,43 +1,28 @@
-#include "dna.h"
-#include "dnaStructure.h"
-#include "greedy.h"
-#include "tabu.h"
-#include "finals.h"
-#include "printers.h"
-#include "additives.h"
+#include "manager.h"
+
+/*
+struct Instance {
+    int repetition;
+    int dnaLength;
+    int oligoLength;
+    string dna;
+    int locationRange;
+    int greedyDepth;
+    int locationRandomType; // 0: Linear or 1: Gaussian
+    // tabu list length ?
+};
+*/
 
 int main() {
-
-    printInitials();
-
-    Dna dna;
-
-    string dnaStr = dna.getDna();
-    vector<string> oligos = dna.getOligos();
-    string firstOligo = dna.getFirst();
     
-    printDNA(dnaStr);
-    // printOligos(oligos);
+    srand(time(NULL));
 
-    DnaStructure structure(oligos);
-    structure.generateErrors();
-    // printOligos(oligos);
-    structure.generateGraph();
-    structure.populateGraph();    
+    Manager manager({
+        // { 1, 10, 3, "GTATTAGAAC", 50, 1, 1 }
+        { 2, 10, 3, "", 50, 1, 1 }
+    });
 
-    // printGraph(structure);
-
-    Greedy greedy(structure, firstOligo);
-    greedy.calculateResult();
-    vector<Pair> result = greedy.getResult();
-
-
-    Tabu tabu(dna, oligos);
-
-    string resultDNA = makeDNA(result, oligos);
-
-    printResultDNA(resultDNA);
-    printDistance(levenshteinDistance(dnaStr, resultDNA));
+    manager.runAll();
 
     return 0;
 }

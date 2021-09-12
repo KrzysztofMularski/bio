@@ -22,7 +22,9 @@ struct Location {
     int right;
 };
 
-#define n 20   // DNA length
-#define k 4    // oligonucleotide length
-#define GREEDY_DEPTH 3
-#define LOCATION_RANGE 50
+int n;  // DNA length
+int k;  // oligonucleotide length
+int GREEDY_DEPTH;
+int LOCATION_RANGE;
+int LOCATION_RANDOM_TYPE;
+int INSTANCE_COUNTER = 1;

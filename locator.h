@@ -13,9 +13,7 @@ public:
     static const int LINEAR = 0;
     static const int GAUSSIAN = 1;
 
-    Locator() {
-        srand(time(NULL));
-    }
+    Locator() {}
 
     ~Locator() {}
 

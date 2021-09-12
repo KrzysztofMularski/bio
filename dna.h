@@ -15,17 +15,20 @@ private:
 
 public:
 
-    Dna() {
-        dna = string(n, 'A');
-        srand(time(NULL));
+    Dna(string dnaString) {
+        if (dnaString.size() == 0) {
+            dna = string(n, 'A');
 
-        // generating a DNA of length n
-        for (int i=0; i<n; i++) {
-            dna[i] = 'A' + rand() % 4;
-            if (dna[i] == 'B')
-                dna[i] = 'T';
-            else if (dna[i] == 'D')
-                dna[i] = 'G';
+            // generating a DNA of length n
+            for (int i=0; i<n; i++) {
+                dna[i] = 'A' + rand() % 4;
+                if (dna[i] == 'B')
+                    dna[i] = 'T';
+                else if (dna[i] == 'D')
+                    dna[i] = 'G';
+            }
+        } else {
+            dna = dnaString;
         }
 
         // generating (m = n - k + 1) oligonucleotides of length k
@@ -53,7 +56,8 @@ public:
             oligosWithLocation.end(),
             [](const OligosWithLocation& a, const OligosWithLocation& b) {
                 return a.oligo < b.oligo;
-            });
+            }
+        );
 
         // sort(oligos.begin(), oligos.end(), [](const string& a, const string& b) {return a < b;});
 
@@ -63,13 +67,10 @@ public:
             oligos[i] = oligosWithLocation[i].oligo;
             
             int index = oligosWithLocation[i].index;
-            Location loc = locator.getLocation(index, Locator::GAUSSIAN);
-            // Location loc = Locator::getLocation(index, Locator::LINEAR);
+            Location loc = locator.getLocation(index, LOCATION_RANDOM_TYPE == 1 ? Locator::GAUSSIAN : Locator::LINEAR);
 
             locations[i] = loc;
         }
-
-
 
         // oligonucleotides after sorting
         // print("Oligonucleotides after sorting:");
