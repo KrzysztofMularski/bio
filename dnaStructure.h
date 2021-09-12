@@ -60,17 +60,11 @@ public:
         vector<int> weights;
         int size = s1.size();
 
-        if (s1 == s2) {
-            weights.push_back(k+1);
-            return weights;
-        }
-
         for (int i=1; i<size; i++)
             if (s1.substr(i, size-i) == s2.substr(0, size-i))
                 weights.push_back(i);
 
-        if (weights.size() == 0)
-            weights.push_back(k);
+        weights.push_back(k);
 
         return weights;
     }

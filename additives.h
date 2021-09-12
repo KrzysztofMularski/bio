@@ -5,19 +5,26 @@
 #include <algorithm>
 #include <iostream>
 
-struct Pair{
+using namespace std;
+
+struct Pair {
     int index;
     int weight;
 };
 
-// struct Rank{
-//     int oligoIndex;
-//     string oligoShortened;
-//     float rank;
-// };
+struct OligosWithLocation {
+    string oligo;
+    int index;
+};
 
-#define n 20   // DNA length
-#define k 4    // oligonucleotide length
-#define GREEDY_DEPTH 3
+struct Location {
+    int left;
+    int right;
+};
 
-using namespace std;
+int n;  // DNA length
+int k;  // oligonucleotide length
+int GREEDY_DEPTH;
+int LOCATION_RANGE;
+int LOCATION_RANDOM_TYPE;
+int INSTANCE_COUNTER = 1;

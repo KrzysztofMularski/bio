@@ -14,7 +14,7 @@ void print(const char* arr) {
 }
 
 void printDNA(const string dna) {
-    cout << "DNA:\n" << dna << endl;
+    cout << "DNA:\n  " << dna << endl;
 }
 
 void printOligos(const vector<string>& oligos) {
@@ -29,6 +29,18 @@ void printGraph(DnaStructure& structure) {
     vector<int>** graph = structure.getGraph();
     const int m = structure.getOligosSize();
     for (int i=0; i<m; i++) {
+        for (int j=0; j<m; j++) {          
+            for (int l=0; l<graph[i][j].size(); l++) {
+                cout << graph[i][j][l] << ", ";
+            }
+            cout << "|";
+        }
+        cout << endl;
+    }
+}
+
+void printGraph2(vector<int>** graph, int m) {
+    for (int i=0; i<m; i++) {
         for (int j=0; j<m; j++) {
             for (int l=0; l<graph[i][j].size(); l++) {
                 cout << graph[i][j][l] << ", ";
@@ -40,11 +52,11 @@ void printGraph(DnaStructure& structure) {
 }
 
 void printResultDNA(const string resultDNA) {
-    cout << "Result DNA:\n" << resultDNA << endl;
+    cout << "Result DNA:\n  " << resultDNA << endl;
 }
 
 void printDistance(const int distance) {
-    cout << "Distance: " << distance << endl;
+    cout << "Distance: " << distance << "\n" << endl;
 }
 
 void printErrors(const vector<string>& oligos) {
@@ -56,4 +68,8 @@ void printErrors(const vector<string>& oligos) {
         }
     }
     cout << "Total errors: " << err << endl;
+}
+
+void printCounter(const int& counter) {
+    cout << "=============== Instance " << counter << " ===============\n" << endl;
 }
