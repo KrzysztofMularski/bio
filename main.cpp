@@ -31,13 +31,16 @@ int main() {
     greedy.calculateResult();
     vector<Pair> result = greedy.getResult();
 
-
-    Tabu tabu(dna, oligos);
-
     string resultDNA = makeDNA(result, oligos);
 
     printResultDNA(resultDNA);
     printDistance(levenshteinDistance(dnaStr, resultDNA));
+
+    cout<<"--------------------------------------------------------------"<<endl;
+    string testTabu;
+    Tabu tabu(resultDNA, oligos, structure.getGraph());
+    testTabu = tabu.compaction();
+    cout<<"test Tabu: "<<testTabu<<endl;
 
     return 0;
 }

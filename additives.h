@@ -10,6 +10,12 @@ struct Pair{
     int weight;
 };
 
+// struct Rank{
+//     int oligoIndex;
+//     string oligoShortened;
+//     float rank;
+// };
+
 #define n 20   // DNA length
 #define k 4    // oligonucleotide length
 #define GREEDY_DEPTH 3
