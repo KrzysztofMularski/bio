@@ -9,7 +9,7 @@ struct Instance {
     int locationRange;
     int greedyDepth;
     int locationRandomType; // 0: Linear or 1: Gaussian
-    // tabu list length ?
+    int tabuListLength;
 };
 */
 
@@ -18,17 +18,12 @@ int main() {
     srand(time(NULL));
 
     Manager manager({
-        // { 1, 10, 3, "GTATTAGAAC", 50, 1, 1 }
-        { 2, 10, 3, "", 50, 1, 1 }
+        // { 1, 10, 3, "GTATTAGAAC", 50, 1, 1, 10}
+        { 1, 10, 4, "ACGTAACTGG", 50, 2, 1, 10}
+        //{ 1, 10, 3, "", 50, 1, 1 }
     });
 
     manager.runAll();
-
-    cout<<"--------------------------------------------------------------"<<endl;
-    string testTabu;
-    Tabu tabu(resultDNA, oligos, structure.getGraph());
-    testTabu = tabu.compaction();
-    cout<<"test Tabu: "<<testTabu<<endl;
 
     return 0;
 }

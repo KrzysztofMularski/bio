@@ -165,7 +165,7 @@ public:
         return greedyResult;
     }
 
-    vector<string> getResultOligos() const {
+    vector<string>& getResultOligos() {
         return greedyResultOligos;
     }
 };

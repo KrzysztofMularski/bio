@@ -17,7 +17,7 @@ struct Instance {
     int locationRange;
     int greedyDepth;
     int locationRandomType; // Linear or Gaussian
-    // tabu list length ?
+    int tabuListLength;
 
 };
 
@@ -46,6 +46,7 @@ public:
         GREEDY_DEPTH = i.greedyDepth;
         LOCATION_RANGE = i.locationRange;
         LOCATION_RANDOM_TYPE = i.locationRandomType;
+        TABU_LIST_LENGTH = i.tabuListLength;
 
         // printInitials();
 
@@ -73,10 +74,15 @@ public:
 
         // Tabu tabu(dna, oligos);
 
-        string resultDNA = makeDNA(result, oligos);
+        //string resultDNA = makeDNA(result, oligos);
+        string resultDNA = "ACGTAACTGG";
 
         printResultDNA(resultDNA);
         printDistance(levenshteinDistance(dnaStr, resultDNA));
+
+        Tabu tabu(resultDNA, greedy.getResultOligos(), oligos, result, structure.getGraph());
+        tabu.compaction();
+
     }
 
 };

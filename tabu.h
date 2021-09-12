@@ -6,132 +6,64 @@
 #pragma once
 
 class Tabu{
-    string dna;
-    vector<string> oligos;
-    vector<string> tabu;
+    string dna, firstOligo;
+    vector<string> oligosGreedy;
+    vector<string> oligosAll;
+    vector<int> tabuList;
+    vector<Pair> greedyResult;
     int oligoLength;
     float evaluation;
     vector<int>** graph;
-    
-    // DnaStructure structure;
 
 public:
-    Tabu(string dna, vector<string>& oligos, vector<int> **graph): dna(dna), oligos(oligos), graph(graph) {
+    Tabu(string dna, vector<string>& oligosGreedy, vector<string>& oligosAll, vector<Pair>& greedyResult, vector<int> **graph): 
+        dna(dna), firstOligo(oligosGreedy[0]), oligosGreedy(oligosGreedy), oligosAll(oligosAll), greedyResult(greedyResult), graph(graph) {
         oligoLength = k;
-        evaluation = numberOfOligos(dna) / dna.length();
-     }
-
-    //policzyć ile jest oligo w "pierwotnym" dna
-    int numberOfOligos(string checkDna)
-    {
-        int howManyOligos = 0;
-        for(int i = 0; i < oligos.size(); i++)
-        {
-            howManyOligos += countSubstring(checkDna, oligos[i]);
-        }
-
-        return howManyOligos;
-    }    
-
-    // returns count of non-overlapping occurrences of 'sub' in 'str'
-    int countSubstring(const string& str, const string& sub)
-    {
-        if (sub.length() == 0) 
-            return 0;
-
-        int count = 0;
-        for (size_t offset = str.find(sub); offset != std::string::npos;
-            offset = str.find(sub, offset + sub.length()))
-        {
-            ++count;
-        }
-
-        return count;
+        evaluation = (float)greedyResult.size() / dna.size();
     }
 
-    void minMax(const vector<int>& weights, int& mini, int& maxi)
+    //zagęszczanie
+    void compaction()
     {
-        for(int i = 0; i < weights.size(); i ++)
+        while(true)
         {
-            if(weights[i] < mini)
-                mini = weights[i];
-            else if(weights[i] > maxi)
-                maxi = weights[i];
-        }
-    }
+            vector<float> rating = {0.0};
+            float size = (float)greedyResult.size();
+            int current, next = 0, newNext = 0;
 
-
-    string compaction()
-    {
-        //vector<Pair> whichOligo;        //funkcja oceny stanu
-        // vector<Rank> whichOligo;
-        // Rank oligoRank;
-        string tempOligo, oligoToCompare, substringDna, shortenedDna;
-        string tempDna = dna;
-        int comparing, index, largestElement, smallestElement;
-        float tempEvaluation;
-        //int help = 0;
-
-        while(tempDna.length() > oligoLength) //tempDna.length() > oligoLength
-        {
-            tempOligo = tempDna.substr(0, oligoLength);
-            cout<<"temp oligo: "<<tempOligo<<endl;
-            
-            for(int i = 0; i < oligos.size(); i ++)
+            for(int i = 1; i < size; i++)
             {
-                comparing = tempOligo.compare(oligos[i]);
-                if(comparing == 0)
-                {
-                    index = i;
-                    break;
+                auto it = find(tabuList.begin(), tabuList.end(), i);
+                if (it != tabuList.end()) {
+                    rating.push_back(-1.0);
+                    continue;
                 }
-            }
-            cout<<"index of temp oligo: "<< index <<endl;
+                
+                current = greedyResult[i].weight;
+                if(i != size - 1)
+                {
+                    next = greedyResult[i+1].weight;
+                    newNext = graph[i-1][i+1][0];
+                }
 
-            for(int i = 0; i < oligoLength; i++)
+                rating.push_back((size-1) / (dna.length() - (current + next - newNext)));
+            }
+
+            int bestIndex = max_element(rating.begin(), rating.end()) - rating.begin();
+
+            if(rating[bestIndex] >= evaluation)
             {
-                cout<<"-------------"<<i<<"------------"<<endl;
-                oligoToCompare = tempDna.substr(i, oligoLength);
-                cout<<"oligo to compare: "<<oligoToCompare<<endl;
+                evaluation = rating[bestIndex];
 
-                for(int j = 0; j < graph[index][i].size() ; j++)      //j < od długości wiersza powinno być
-                {
-                    //cout<<"j: "<<j<<endl;
-                    comparing = oligoToCompare.compare(oligos[j]);
-                    if(comparing == 0)
-                    {
-                        cout<<"jesteśmy w IF"<<endl;
-                        //largestElement  = *max_element(graph[index][j].begin(),graph[index][j].end());
-                        //whichOligo.push_back({j, largest_element});
-                        //smallestElement = *min_element(graph[index][j].begin(),graph[index][j].end());
-                        smallestElement = graph[index][j].size() + 1;
-                        largestElement = 0;
-                        minMax(graph[index][j], smallestElement, largestElement);
-
-                        //od najmniejszej do największej liczby dopasaowań dla danego oligo sprawdzamy po usunięciu tego oligo jaka będzie f. stanu
-                        for(int l = smallestElement; l <= largestElement; l++)
-                        {
-                            substringDna = tempDna.substr(l, tempDna.length()-l);
-                            tempEvaluation = numberOfOligos(substringDna) / substringDna.length();
-                            
-                            if(tempEvaluation > evaluation)
-                            {
-                                // oligoRank = {index, substringDna, tempEvaluation};
-                                // whichOligo.push_back(oligoRank);
-                                shortenedDna = substringDna;
-                                evaluation = tempEvaluation;
-                            }
-                        }
-
-                        tempDna = shortenedDna;
-                        break;
-                    }
-                }
+                tabuList.push_back(greedyResult[bestIndex].index);
+                greedyResult.erase(greedyResult.begin() + bestIndex);
             }
-        }
+            else
+                break;
 
-        return tempDna;
+        }
     }
+
     
 
     ~Tabu() {}
