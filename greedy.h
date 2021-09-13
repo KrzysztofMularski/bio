@@ -8,6 +8,7 @@ private:
     vector<int>** graph;
     int oligosSize;
     string firstOligo;
+    int currentDNAlength;
 
     vector<int> visited;
     vector<Pair> greedyResult;
@@ -20,18 +21,19 @@ public:
         oligos(structure.getOligos()),
         graph(structure.getGraph()),
         oligosSize(structure.getOligosSize()),
-        firstOligo(firstOligo) {}
+        firstOligo(firstOligo),
+        currentDNAlength(0) {}
     ~Greedy() {}
 
-    void calculateResult() {
-        vector<Pair> result;
-        int currentDNAlength = k;
+    void calculateResult(vector<Pair> result = {}) {
+        
         Pair pair;
 
         int indexFirst = getIndex(oligos, firstOligo);
         pair = {indexFirst, -1};
         result.push_back(pair);
         visited.push_back(indexFirst);
+        currentDNAlength = k;
         int index = indexFirst;
         int oligosLeft = oligosSize - 1 + 50;
         int ii = 0;
@@ -39,9 +41,9 @@ public:
             pair = findBest(ii, index, 1, {}, oligosLeft);
             if (pair.index == -1)
                 break;
-            currentDNAlength += pair.weight;
             result.push_back(pair);
             visited.push_back(pair.index);
+            currentDNAlength += pair.weight;
 
             if (currentDNAlength >= n || visited.size() == oligosSize)
                 break;
@@ -50,6 +52,13 @@ public:
             oligosLeft--;
             ii++;
         }
+        result = {
+            {2, -1},
+            {5, 1},
+            {6, 1},
+            {1, 2},
+            {4, 2}
+        };
         greedyResult = result;
         
         for(auto pair: result)
@@ -154,6 +163,8 @@ public:
     //     return best;
     // }
 
+    
+
     static int getIndex(const vector<string>& v, const string& s)
     {
         auto it = find(v.begin(), v.end(), s);
@@ -163,6 +174,10 @@ public:
 
     vector<Pair> getResult() const {
         return greedyResult;
+    }
+
+    int getResultDnaLength() const {
+        return currentDNAlength;
     }
 
     vector<string>& getResultOligos() {

@@ -3,7 +3,7 @@
 #include "greedy.h"
 #include "tabu.h"
 #include "finals.h"
-#include "printers.h"
+#include "printer.h"
 #include "additives.h"
 
 #pragma once
@@ -19,6 +19,8 @@ struct Instance {
     int locationRandomType; // Linear or Gaussian
     int tabuListLength;
 
+    int toPrint;
+
 };
 
 class Manager {
@@ -31,7 +33,7 @@ public:
     void runAll() {
         for (auto instance : instances) {
             for (int i=0; i<instance.repetition; i++) {
-                printCounter(INSTANCE_COUNTER);
+                instance.toPrint & Printer::COUNTER && Printer::printCounter(INSTANCE_COUNTER);
                 run(instance);
                 INSTANCE_COUNTER++;
             }
@@ -47,8 +49,9 @@ public:
         LOCATION_RANGE = i.locationRange;
         LOCATION_RANDOM_TYPE = i.locationRandomType;
         TABU_LIST_LENGTH = i.tabuListLength;
+        TO_PRINT = i.toPrint;
 
-        // printInitials();
+        TO_PRINT & Printer::INITIALS && Printer::printInitials();
 
         Dna dna(i.dna);
 
@@ -56,32 +59,29 @@ public:
         vector<string> oligos = dna.getOligos();
         string firstOligo = dna.getFirst();
         
-        printDNA(dnaStr);
-        // printOligos(oligos);
+        TO_PRINT & Printer::STARTING_DNA && Printer::printDNA(dnaStr);
+        TO_PRINT & Printer::ORIGINAL_OLIGOS && Printer::printOligos("Original oligonucleotides", oligos);
 
         DnaStructure structure(oligos);
         structure.generateErrors();
         oligos = structure.getOligos();
-        // printOligos(oligos);
+        TO_PRINT & Printer::OLIGOS_WITH_ERRORS && Printer::printOligos("Oligonucleotides with errors", oligos);
         structure.generateGraph();
         structure.populateGraph();
 
-        // printGraph(structure);
+        TO_PRINT & Printer::GRAPH && Printer::printGraph(structure);
 
         Greedy greedy(structure, firstOligo);
         greedy.calculateResult();
         vector<Pair> result = greedy.getResult();
 
-        // Tabu tabu(dna, oligos);
+        int resultDnaLength = greedy.getResultDnaLength();
+        TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
 
-        //string resultDNA = makeDNA(result, oligos);
-        string resultDNA = "ACGTAACTGG";
+        Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, result, structure.getGraph());
+        tabu.startSearch();
 
-        printResultDNA(resultDNA);
-        printDistance(levenshteinDistance(dnaStr, resultDNA));
-
-        Tabu tabu(resultDNA, greedy.getResultOligos(), oligos, result, structure.getGraph());
-        tabu.compaction();
+        TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);
 
     }
 

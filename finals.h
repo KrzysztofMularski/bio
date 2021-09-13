@@ -8,7 +8,7 @@ int minimum(int a, int b, int c) {
     return a < b ? (a < c ? a : c) : (b < c ? b : c);
 }
 
-int levenshteinDistance(string& str1, string& str2) {
+int levenshteinDistance(const string& str1, const string& str2) {
     int p = str1.size();
     int q = str2.size();
     int** dist = new int* [p+1];
@@ -39,7 +39,7 @@ int levenshteinDistance(string& str1, string& str2) {
     return distance;
 }
 
-string makeDNA(vector<Pair> result, vector<string>& oligos)
+string makeDNA(const vector<Pair>& result, const vector<string>& oligos)
 {
     string dna = oligos[result[0].index];
     for (int i=1; i<result.size(); i++)
