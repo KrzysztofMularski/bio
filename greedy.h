@@ -80,9 +80,10 @@ public:
         }
 
         while(true) {
-            if (greedyType == Greedy::TYPE_GREEDY)
-                pair = findBest(index, 1, {}, 0);
-            else {
+            if (greedyType == Greedy::TYPE_GREEDY) {
+                int oligosNumber = 0;
+                pair = findBest(index, 1, {}, 0, oligosNumber);
+            } else {
                 pair = findBestTabu(index);
             }
             if (pair.index == -1)
@@ -125,11 +126,12 @@ public:
     //     }
     // }
 
-    Pair findBest(int index, int depth, vector<int> tempVisited, int newLength) {
+    Pair findBest(int index, int depth, vector<int> tempVisited, int newLength, int& prevOligosNumber) {
     
         vector<int> newTempVisited (tempVisited);
         newTempVisited.push_back(index);
         Pair best = { -1, -1 };
+        int maxOligosNumber = 0;
         int min = 99999;
         for (int i=0; i < oligosSize; i++) {
             auto it = find(visited.begin(), visited.end(), i);
@@ -137,23 +139,33 @@ public:
             if (it == visited.end() && itTemp == newTempVisited.end()) {
                 int bestOligoWeight = 0;
                 int bestParentOligoWeight = -1;
+                int newOligosNumber = 0;
                 if (depth == GREEDY_DEPTH) {
                     bestOligoWeight = graph[index][i][0];
                     if (currentDNAlength + newLength + bestOligoWeight > n)
                         continue;
+                    newOligosNumber += 1;
                 } else {
                     bestOligoWeight = graph[index][i][0];
                     if (currentDNAlength + newLength + bestOligoWeight > n)
                         continue;
-                    int bestWeight = findBest(i, depth+1, newTempVisited, bestOligoWeight).weight;
+                    newOligosNumber += 1;
+                    int bestWeight = findBest(i, depth+1, newTempVisited, newLength+bestOligoWeight, newOligosNumber).weight;
                     if (bestWeight != -1)
                         bestOligoWeight += bestWeight;
                     if (depth == 1 && GREEDY_DEPTH > 1) {
                         bestParentOligoWeight = graph[index][i][0];
                     }
                 }
-                
-                if (bestOligoWeight < min) {
+                if (newOligosNumber > maxOligosNumber) {
+                    maxOligosNumber = newOligosNumber;
+                    min = bestOligoWeight;
+                    if (bestParentOligoWeight != -1) {
+                        best = { i, bestParentOligoWeight };
+                    } else {
+                        best = { i, bestOligoWeight };
+                    }
+                } else if (newOligosNumber == maxOligosNumber && bestOligoWeight < min) {
                     min = bestOligoWeight;
                     if (bestParentOligoWeight != -1) {
                         best = { i, bestParentOligoWeight };
@@ -163,6 +175,7 @@ public:
                 }
             }
         }
+        prevOligosNumber += maxOligosNumber;
         return best;
     }
     
@@ -178,7 +191,7 @@ public:
                 bestOligoWeight = graph[index][i][0];
                 if (currentDNAlength + bestOligoWeight > n)
                     continue;
-                if(bestOligoWeight < min){
+                if (bestOligoWeight < min) {
                     min = bestOligoWeight;
                     best.weight = bestOligoWeight;
                     best.index = i;

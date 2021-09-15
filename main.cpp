@@ -8,7 +8,7 @@ struct Instance {
     string dna;
     int locationRange;
     int greedyDepth;
-    int locationRandomType; // 0: Linear or 1: Gaussian
+    Random_Type locationRandomType;
     int tabuListLength;
     int toPrint;
 };
@@ -30,7 +30,7 @@ int main() {
     | Printer::RESULTS_AFTER_LENGTHENING
     | Printer::RESULTS_FINAL;
 
-    Instance instance1(1, 10, 4, "ACGTAACCTG", 50, 2, Random_Type::GAUSSIAN, 10, toPrint);
+    Instance instance1(1, 10, 4, "ACGTAACCTG", 50, 3, Random_Type::GAUSSIAN, 10, toPrint);
     // Instance instance2(1, 10, 4, "ACGTAACCTG", 50, 2, Locator::GAUSSIAN, 10, toPrint);
 
     Manager manager({
