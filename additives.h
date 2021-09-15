@@ -7,6 +7,16 @@
 
 using namespace std;
 
+int n;  // DNA length
+int k;  // oligonucleotide length
+int GREEDY_DEPTH;
+int LOCATION_RANGE;
+int LOCATION_RANDOM_TYPE;
+int INSTANCE_COUNTER = 1;
+int TABU_LIST_LENGTH = 10;
+
+int TO_PRINT;
+
 struct Pair {
     int index;
     int weight;
@@ -22,12 +32,8 @@ struct Location {
     int right;
 };
 
-int n;  // DNA length
-int k;  // oligonucleotide length
-int GREEDY_DEPTH;
-int LOCATION_RANGE;
-int LOCATION_RANDOM_TYPE;
-int INSTANCE_COUNTER = 1;
-int TABU_LIST_LENGTH = 10;
-
-int TO_PRINT;
+void add(vector<int>& tabuList, const int& element) {
+    tabuList.push_back(element);
+    if (tabuList.size() > TABU_LIST_LENGTH)
+        tabuList.erase(tabuList.begin());
+}

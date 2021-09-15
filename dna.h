@@ -71,8 +71,6 @@ public:
 
             locations[i] = loc;
         }
-
-        oligos = {"AACC", "AACT", "ACGT", "CCTG", "CTGG", "CGTA","GTAA"};
         
         // oligonucleotides after sorting
         // print("Oligonucleotides after sorting:");

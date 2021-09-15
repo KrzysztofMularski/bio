@@ -71,14 +71,19 @@ public:
 
         TO_PRINT & Printer::GRAPH && Printer::printGraph(structure);
 
-        Greedy greedy(structure, firstOligo);
+        vector<int> visited;
+        vector<Pair> result;
+        vector<string> greedyResultOligos;
+        vector<int> tabuList;
+
+        Greedy greedy(structure, firstOligo, visited, result, greedyResultOligos, tabuList, Greedy::TYPE_GREEDY);
         greedy.calculateResult();
-        vector<Pair> result = greedy.getResult();
+        // vector<Pair> result = greedy.getResult();
 
         int resultDnaLength = greedy.getResultDnaLength();
         TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
 
-        Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, result, structure.getGraph());
+        Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, result, structure.getGraph(), greedy.getVisited(), tabuList, greedyResultOligos);
         tabu.startSearch();
 
         TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);

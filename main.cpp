@@ -10,6 +10,7 @@ struct Instance {
     int greedyDepth;
     int locationRandomType; // 0: Linear or 1: Gaussian
     int tabuListLength;
+    int toPrint;
 };
 */
 
@@ -19,7 +20,7 @@ int main() {
 
     const int toPrint = 0
     | Printer::COUNTER
-    | Printer::INITIALS
+    // | Printer::INITIALS
     | Printer::STARTING_DNA
     | Printer::ORIGINAL_OLIGOS
     | Printer::OLIGOS_WITH_ERRORS
@@ -31,7 +32,7 @@ int main() {
 
     Manager manager({
         // { 1, 10, 3, "GTATTAGAAC", 50, 1, 1, 10, toPrint}
-        { 2, 10, 4, "ACGTAACTGG", 50, 2, 1, 10, toPrint}
+        { 1, 10, 4, "ACGTAACCTG", 50, 2, 1, 10, toPrint}
         //{ 1, 10, 3, "", 50, 1, 1, 10, toPrint }
     });
 

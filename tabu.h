@@ -1,7 +1,5 @@
 #include "additives.h"
-#include <iostream>
-#include <algorithm>
-#include <vector>
+#include "greedy.h"
 
 #pragma once
 
@@ -10,11 +8,14 @@ class Tabu{
     int dnaLength;
     vector<string> oligosGreedy;
     vector<string> oligosAll;
-    vector<int> tabuList;
-    vector<Pair> result;
+    int oligosAllSize;
+    vector<int>& tabuList;
+    vector<Pair>& result;
+    vector<int>& visited;
     int oligoLength;
     float evaluation;
     vector<int>** graph;
+    vector<string>& greedyResultOligos;
 
 public:
     Tabu(
@@ -23,7 +24,10 @@ public:
         vector<string>& oligosGreedy,
         vector<string>& oligosAll,
         vector<Pair>& result,
-        vector<int> **graph
+        vector<int>** graph,
+        vector<int>& visited,
+        vector<int>& tabuList,
+        vector<string>& greedyResultOligos
         ) :
         originalDna(originalDna),
         dnaLength(dnaLength),
@@ -31,10 +35,14 @@ public:
         oligosGreedy(oligosGreedy),
         oligosAll(oligosAll),
         result(result),
-        graph(graph) {
+        graph(graph),
+        visited(visited),
+        tabuList(tabuList),
+        greedyResultOligos(greedyResultOligos) {
             
         oligoLength = k;
         evaluation = (float)result.size() / (float)dnaLength;
+        oligosAllSize = oligosAll.size();
     }
 
     void startSearch() {
@@ -97,22 +105,32 @@ public:
                 
                 evaluation = rating[bestIndex];
 
-                tabuList.push_back(result[bestIndex].index);
+                add(tabuList, result[bestIndex].index);
                 result.erase(result.begin() + bestIndex);
+                visited.erase(visited.begin() + bestIndex);
 
                 // bestIndex now points to the next element after the best which was removed
                 if (bestIndex != size) {
                     result[bestIndex].weight = graph[bestIndex-1][bestIndex][0];
                 }
             }
-            else
+            else {
+
                 break;
+            }
 
         }
     }
 
+    // wydłużanie
     void lengthening() {
-
+        Greedy greedy(
+            oligosAll, graph, oligosAllSize,
+            firstOligo, dnaLength, visited,
+            result, greedyResultOligos, tabuList,
+            Greedy::TYPE_TABU_LENGTHENING);
+        
+        greedy.calculateResult();
     }
 
     vector<Pair>& getResult() {

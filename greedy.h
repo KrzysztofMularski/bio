@@ -4,64 +4,110 @@
 
 class Greedy {
 private:
-    vector<string> oligos;
+    vector<string>& oligos;
     vector<int>** graph;
     int oligosSize;
     string firstOligo;
     int currentDNAlength;
 
-    vector<int> visited;
-    vector<Pair> greedyResult;
-    vector<string> greedyResultOligos;
+    vector<int>& visited;
+    vector<Pair>& greedyResult;
+    vector<string>& greedyResultOligos;
+
+    vector<int>& tabuList;
+    int greedyType; // 0-greedy, 1-tabu(lengthening)
 public:
     Greedy(
         DnaStructure& structure,
-        string& firstOligo
+        string& firstOligo,
+        vector<int>& visited,
+        vector<Pair>& greedyResult,
+        vector<string>& greedyResultOligos,
+        vector<int>& tabuList,
+        int greedyType = 0
         ) :
         oligos(structure.getOligos()),
         graph(structure.getGraph()),
         oligosSize(structure.getOligosSize()),
         firstOligo(firstOligo),
-        currentDNAlength(0) {}
+        currentDNAlength(0),
+        visited(visited),
+        greedyResult(greedyResult),
+        greedyResultOligos(greedyResultOligos),
+        tabuList(tabuList),
+        greedyType(greedyType) {}
+    
+    Greedy(
+        vector<string>& oligos,
+        vector<int>** graph,
+        int oligosSize,
+        string firstOligo,
+        int currentDNAlength,
+        vector<int>& visited,
+        vector<Pair>& greedyResult,
+        vector<string>& greedyResultOligos,
+        vector<int>& tabuList,
+        int greedyType = 1
+        ) :
+        oligos(oligos),
+        graph(graph),
+        oligosSize(oligosSize),
+        firstOligo(firstOligo),
+        currentDNAlength(currentDNAlength),
+        visited(visited),
+        tabuList(tabuList),
+        greedyResult(greedyResult),
+        greedyResultOligos(greedyResultOligos),
+        greedyType(greedyType) {}
     ~Greedy() {}
 
-    void calculateResult(vector<Pair> result = {}) {
-        
-        Pair pair;
+    static const int TYPE_GREEDY = 0;
+    static const int TYPE_TABU_LENGTHENING = 1;
 
-        int indexFirst = getIndex(oligos, firstOligo);
-        pair = {indexFirst, -1};
-        result.push_back(pair);
-        visited.push_back(indexFirst);
-        currentDNAlength = k;
-        int index = indexFirst;
-        int oligosLeft = oligosSize - 1 + 50;
-        int ii = 0;
+    void calculateResult() {
+        Pair pair;
+        int index;
+
+        if (greedyResult.size() == 0) {
+            int indexFirst = getIndex(oligos, firstOligo);
+            pair = {indexFirst, -1};
+            greedyResult.push_back(pair);
+            visited.push_back(indexFirst);
+            currentDNAlength = k;
+            index = indexFirst;
+        } else {
+            index = greedyResult.back().index;
+        }
+
         while(true) {
-            pair = findBest(ii, index, 1, {}, oligosLeft);
+            if (greedyType == Greedy::TYPE_GREEDY)
+                pair = findBest(index, 1, {}, 0);
+            else {
+                pair = findBestTabu(index);
+            }
             if (pair.index == -1)
                 break;
-            result.push_back(pair);
+            greedyResult.push_back(pair);
             visited.push_back(pair.index);
+            add(tabuList, pair.index);
             currentDNAlength += pair.weight;
 
             if (currentDNAlength >= n || visited.size() == oligosSize)
                 break;
             
             index = pair.index;
-            oligosLeft--;
-            ii++;
         }
-        result = {
-            {2, -1},
-            {5, 1},
-            {6, 1},
-            {1, 2},
-            {4, 2}
-        };
-        greedyResult = result;
+        // if (greedyType == Greedy::TYPE_GREEDY) {
+        //     result = {
+        //         {2, -1},
+        //         {5, 1},
+        //         {6, 1},
+        //         {1, 2},
+        //         {4, 2}
+        //     };
+        // }
         
-        for(auto pair: result)
+        for(auto pair : greedyResult)
         {
             greedyResultOligos.push_back(oligos[pair.index]);
         }
@@ -79,7 +125,7 @@ public:
     //     }
     // }
 
-    Pair findBest(int ii, int index, int depth, vector<int> tempVisited, int oligosLeft) {
+    Pair findBest(int index, int depth, vector<int> tempVisited, int newLength) {
         vector<int> newTempVisited (tempVisited);
         newTempVisited.push_back(index);
         Pair best = { -1, -1 };
@@ -89,23 +135,26 @@ public:
             auto itTemp = find(newTempVisited.begin(), newTempVisited.end(), i);
             if (it == visited.end() && itTemp == newTempVisited.end()) {
                 int bestOligoWeight = 0;
-                int bestParentOligoWeight = 0;
-                int flag = 0;
-                if (depth == GREEDY_DEPTH || oligosLeft == 0 || oligosLeft == 1) {
-                    flag = 1;
+                int bestParentOligoWeight = -1;
+                if (depth == GREEDY_DEPTH) {
                     bestOligoWeight = graph[index][i][0];
-                } else if (depth == 1 && GREEDY_DEPTH > 1 && oligosLeft > 1) {
-                    flag = 2;
-                    bestOligoWeight = graph[index][i][0] + findBest(ii, i, depth+1, newTempVisited, oligosLeft-1).weight;
-                    bestParentOligoWeight = graph[index][i][0];
+                    if (currentDNAlength + newLength + bestOligoWeight > n)
+                        continue;
                 } else {
-                    flag = 3;
-                    bestOligoWeight = graph[index][i][0] + findBest(ii, i, depth+1, newTempVisited, oligosLeft-1).weight;
+                    bestOligoWeight = graph[index][i][0];
+                    if (currentDNAlength + newLength + bestOligoWeight > n)
+                        continue;
+                    int bestWeight = findBest(i, depth+1, newTempVisited, bestOligoWeight).weight;
+                    if (bestWeight != -1)
+                        bestOligoWeight += bestWeight;
+                    if (depth == 1 && GREEDY_DEPTH > 1) {
+                        bestParentOligoWeight = graph[index][i][0];
+                    }
                 }
                 
                 if (bestOligoWeight < min) {
                     min = bestOligoWeight;
-                    if (flag == 2) {
+                    if (bestParentOligoWeight != -1) {
                         best = { i, bestParentOligoWeight };
                     } else {
                         best = { i, bestOligoWeight };
@@ -116,25 +165,25 @@ public:
         return best;
     }
     
-    // static Pair findBest(vector<int>* graphRow, int oligosSize, vector<int>& visited) {
-    //     Pair best;
-    //     best.index = -1;
-    //     best.weight = -1;
-    //     int bestCellWeight, min = k+2;
-    //     for(int i = 0; i < oligosSize; i++)
-    //     {
-    //         auto it = find(visited.begin(), visited.end(), i);
-    //         if(it == visited.end()){
-    //             bestCellWeight = *min_element(graphRow[i].begin(), graphRow[i].end());
-    //             if(bestCellWeight < min){
-    //                 min = bestCellWeight;
-    //                 best.weight = bestCellWeight;
-    //                 best.index = i;
-    //             }
-    //         }      
-    //     }
-    //     return best;
-    // }
+    Pair findBestTabu(int index) {
+        Pair best = { -1, -1 };
+        int bestOligoWeight;
+        int min = k+1;
+        for(int i = 0; i < oligosSize; i++)
+        {
+            auto it = find(visited.begin(), visited.end(), i);
+            auto itTabu = find(tabuList.begin(), tabuList.end(), i);
+            if(it == visited.end() && itTabu == tabuList.end()){
+                bestOligoWeight = graph[index][i][0];
+                if(bestOligoWeight < min){
+                    min = bestOligoWeight;
+                    best.weight = bestOligoWeight;
+                    best.index = i;
+                }
+            }      
+        }
+        return best;
+    }
 
     // static int findBestRecur(vector<int>* graphRow, int oligosSize, vector<int>& visited, vector<int>& tempVisited, int depth, int currentScore ) {
 
@@ -172,7 +221,7 @@ public:
         return it != v.end() ? it - v.begin() : -1; // if found then return index
     }
 
-    vector<Pair> getResult() const {
+    vector<Pair>& getResult() {
         return greedyResult;
     }
 
@@ -182,5 +231,9 @@ public:
 
     vector<string>& getResultOligos() {
         return greedyResultOligos;
+    }
+
+    vector<int>& getVisited() {
+        return visited;
     }
 };

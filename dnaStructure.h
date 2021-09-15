@@ -18,6 +18,19 @@ public:
 
     void generateErrors() {
         toSet();
+        oligos = {
+            "AACT",
+            "AACC",
+            "ACGT",
+            "CCTG",
+            "CGTA",
+            "CTGG",
+            "GTAA"
+        };
+
+
+        // uwzględnić tablice z pozycjami
+
         // todo: dodać generowanie błędów negatywnych i pozytywnych
     }
 
@@ -35,7 +48,7 @@ public:
                 graph[i][j] = calcOligosWeights(oligos[i], oligos[j]);
     }
 
-    vector<string> getOligos() {
+    vector<string>& getOligos() {
         return oligos;
     }
 
