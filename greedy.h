@@ -126,6 +126,7 @@ public:
     // }
 
     Pair findBest(int index, int depth, vector<int> tempVisited, int newLength) {
+    
         vector<int> newTempVisited (tempVisited);
         newTempVisited.push_back(index);
         Pair best = { -1, -1 };
@@ -175,6 +176,8 @@ public:
             auto itTabu = find(tabuList.begin(), tabuList.end(), i);
             if(it == visited.end() && itTabu == tabuList.end()){
                 bestOligoWeight = graph[index][i][0];
+                if (currentDNAlength + bestOligoWeight > n)
+                    continue;
                 if(bestOligoWeight < min){
                     min = bestOligoWeight;
                     best.weight = bestOligoWeight;

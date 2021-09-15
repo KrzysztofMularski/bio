@@ -67,7 +67,7 @@ public:
             oligos[i] = oligosWithLocation[i].oligo;
             
             int index = oligosWithLocation[i].index;
-            Location loc = locator.getLocation(index, LOCATION_RANDOM_TYPE == 1 ? Locator::GAUSSIAN : Locator::LINEAR);
+            Location loc = locator.getLocation(index, LOCATION_RANDOM_TYPE);
 
             locations[i] = loc;
         }

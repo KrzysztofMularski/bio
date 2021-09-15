@@ -10,17 +10,36 @@
 
 struct Instance {
     int repetition;
-
     int dnaLength;
     int oligoLength;
     string dna;
     int locationRange;
     int greedyDepth;
-    int locationRandomType; // Linear or Gaussian
+    Random_Type locationRandomType; // Linear or Gaussian
     int tabuListLength;
-
     int toPrint;
 
+    Instance(
+        int repetition,
+        int dnaLength,
+        int oligoLength,
+        string dna,
+        int locationRange,
+        int greedyDepth,
+        Random_Type locationRandomType,
+        int tabuListLength,
+        int toPrint
+        ) :
+        repetition(repetition),
+        dnaLength(dnaLength),
+        oligoLength(oligoLength),
+        dna(dna),
+        locationRange(locationRange),
+        greedyDepth(greedyDepth),
+        locationRandomType(locationRandomType),
+        tabuListLength(tabuListLength),
+        toPrint(toPrint) {}
+    
 };
 
 class Manager {

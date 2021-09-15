@@ -30,10 +30,12 @@ int main() {
     | Printer::RESULTS_AFTER_LENGTHENING
     | Printer::RESULTS_FINAL;
 
+    Instance instance1(1, 10, 4, "ACGTAACCTG", 50, 2, Random_Type::GAUSSIAN, 10, toPrint);
+    // Instance instance2(1, 10, 4, "ACGTAACCTG", 50, 2, Locator::GAUSSIAN, 10, toPrint);
+
     Manager manager({
-        // { 1, 10, 3, "GTATTAGAAC", 50, 1, 1, 10, toPrint}
-        { 1, 10, 4, "ACGTAACCTG", 50, 2, 1, 10, toPrint}
-        //{ 1, 10, 3, "", 50, 1, 1, 10, toPrint }
+        instance1,
+        // instance2
     });
 
     manager.runAll();

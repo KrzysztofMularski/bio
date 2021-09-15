@@ -10,19 +10,16 @@ private:
 
 public:
 
-    static const int LINEAR = 0;
-    static const int GAUSSIAN = 1;
-
     Locator() {}
 
     ~Locator() {}
 
-    Location getLocation(int index, int isGaussian = 0) {
+    Location getLocation(int index, Random_Type r_type = Random_Type::LINEAR) {
         int loc_range = LOCATION_RANGE < n-1 ? LOCATION_RANGE : n-1;
         int half_loc_range = (loc_range + 1) / 2;
 
         int number = 0;
-        if (isGaussian) {
+        if (r_type == Random_Type::GAUSSIAN) {
             number += getGaussianRandom(loc_range, index);
         } else {
             number += getLinearRandom(loc_range) + index;
@@ -52,29 +49,6 @@ public:
             // std::cout << "'" << number << "' " << index << ": [" << left << ", " << right << "]" << std::endl;
         return { left, right };
     }
-
-    // void test(int index, int isGaussian = 0) {
-    //     Location result = getLocation(index, isGaussian);
-    // }
-
-    // int main()
-    // {
-    //     
-        
-    //     std::cout << "loc_range=" << LOCATION_RANGE << " n=" << n << std::endl;
-        
-    //     // std::cout << "Linear: " << std::endl;
-    //     // for (int i=0; i<10; ++i) {
-    //     //     test(2);
-    //     // }
-
-    //     std::cout << "Gaussian: " << std::endl;
-
-    //     for (int i=0; i<1000; ++i) {
-    //         test(50, 1);
-    //     }
-        
-    // }
 
     int getGaussianRandom(int loc_range, int index) {
         double mean = index;
