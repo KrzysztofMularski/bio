@@ -15,7 +15,7 @@ public:
     ~Locator() {}
 
     Location getLocation(int index, Random_Type r_type = Random_Type::LINEAR) {
-        int loc_range = LOCATION_RANGE < n-1 ? LOCATION_RANGE : n-1;
+        int loc_range = LOCATION_RANGE-1 < n-1 ? LOCATION_RANGE-1 : n-1;
         int half_loc_range = (loc_range + 1) / 2;
 
         int number = 0;

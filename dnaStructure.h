@@ -4,11 +4,12 @@
 
 class DnaStructure {
 private:
-    vector<string> oligos;
+    vector<string>& oligos;
+    vector<Location>& locations;
     int oligosSize;
     vector<int>** graph;
 public:
-    DnaStructure(vector<string> oligos) : oligos(oligos) {}
+    DnaStructure(vector<string>& oligos, vector<Location>& locations) : oligos(oligos), locations(locations) {}
 
     ~DnaStructure() {
         for (int i=0; i<oligosSize; i++)
@@ -18,16 +19,15 @@ public:
 
     void generateErrors() {
         toSet();
-        oligos = {
-            "AACT",
-            "AACC",
-            "ACGT",
-            "CCTG",
-            "CGTA",
-            "CTGG",
-            "GTAA"
-        };
-
+        // oligos = {
+        //     "AACT",
+        //     "AACC",
+        //     "ACGT",
+        //     "CCTG",
+        //     "CGTA",
+        //     "CTGG",
+        //     "GTAA"
+        // };
 
         // uwzględnić tablice z pozycjami
 
@@ -50,6 +50,10 @@ public:
 
     vector<string>& getOligos() {
         return oligos;
+    }
+
+    vector<Location>& getLocations() {
+        return locations;
     }
 
     int getOligosSize() {

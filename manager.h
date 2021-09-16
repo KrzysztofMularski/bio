@@ -61,7 +61,6 @@ public:
 
     void run(Instance i) {
 
-        // setting up globals
         n = i.dnaLength;
         k = i.oligoLength;
         GREEDY_DEPTH = i.greedyDepth;
@@ -75,16 +74,22 @@ public:
         Dna dna(i.dna);
 
         string dnaStr = dna.getDna();
-        vector<string> oligos = dna.getOligos();
+        vector<string>& oligos = dna.getOligos();
         string firstOligo = dna.getFirst();
+        vector<Location>& locations = dna.getLocations();
         
         TO_PRINT & Printer::STARTING_DNA && Printer::printDNA(dnaStr);
         TO_PRINT & Printer::ORIGINAL_OLIGOS && Printer::printOligos("Original oligonucleotides", oligos);
+        TO_PRINT & Printer::ORIGINAL_LOCATIONS && Printer::printLocations("Original oligonucleotides locations", locations);
+        TO_PRINT & Printer::ORIGINAL_OLIGOS_WITH_LOCATIONS && Printer::printOligosWithLocations("Original oligonucleotides with locations", oligos, locations);
 
-        DnaStructure structure(oligos);
+        DnaStructure structure(oligos, locations);
         structure.generateErrors();
-        oligos = structure.getOligos();
-        TO_PRINT & Printer::OLIGOS_WITH_ERRORS && Printer::printOligos("Oligonucleotides with errors", oligos);
+
+        TO_PRINT & Printer::WITH_ERRORS_OLIGOS && Printer::printOligos("Oligonucleotides with errors", oligos);
+        TO_PRINT & Printer::WITH_ERRORS_LOCATIONS && Printer::printLocations("Oligonucleotides with errors locations", locations);
+        TO_PRINT & Printer::WITH_ERRORS_OLIGOS_WITH_LOCATIONS && Printer::printOligosWithLocations("Oligonucleotides with errors with locations", oligos, locations);
+        
         structure.generateGraph();
         structure.populateGraph();
 
@@ -97,12 +102,11 @@ public:
 
         Greedy greedy(structure, firstOligo, visited, result, greedyResultOligos, tabuList, Greedy::TYPE_GREEDY);
         greedy.calculateResult();
-        // vector<Pair> result = greedy.getResult();
-
         int resultDnaLength = greedy.getResultDnaLength();
+
         TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
 
-        Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, result, structure.getGraph(), greedy.getVisited(), tabuList, greedyResultOligos);
+        Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, locations, result, structure.getGraph(), greedy.getVisited(), tabuList, greedyResultOligos);
         tabu.startSearch();
 
         TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);

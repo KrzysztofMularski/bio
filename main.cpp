@@ -22,20 +22,23 @@ int main() {
     | Printer::COUNTER
     // | Printer::INITIALS
     | Printer::STARTING_DNA
-    | Printer::ORIGINAL_OLIGOS
-    | Printer::OLIGOS_WITH_ERRORS
-    | Printer::GRAPH
+    // | Printer::ORIGINAL_OLIGOS
+    // | Printer::ORIGINAL_LOCATIONS
+    // | Printer::ORIGINAL_OLIGOS_WITH_LOCATIONS
+    // | Printer::WITH_ERRORS_OLIGOS
+    // | Printer::WITH_ERRORS_LOCATIONS
+    // | Printer::WITH_ERRORS_OLIGOS_WITH_LOCATIONS
+    // | Printer::GRAPH
     | Printer::RESULTS_GREEDY
     | Printer::RESULTS_AFTER_COMPACTION
     | Printer::RESULTS_AFTER_LENGTHENING
     | Printer::RESULTS_FINAL;
 
-    Instance instance1(1, 10, 4, "ACGTAACCTG", 50, 3, Random_Type::GAUSSIAN, 10, toPrint);
-    // Instance instance2(1, 10, 4, "ACGTAACCTG", 50, 2, Locator::GAUSSIAN, 10, toPrint);
+    // Instance instance1(1, 10, 4, "ACGTAACCTG", 6, 2, Random_Type::GAUSSIAN, 10, toPrint);
+    Instance instance1(1, 20, 3, "CGACGGACTCTGAAAACCTG", 20, 2, Random_Type::GAUSSIAN, 10, toPrint);
 
     Manager manager({
         instance1,
-        // instance2
     });
 
     manager.runAll();

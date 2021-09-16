@@ -14,12 +14,18 @@ public:
     static const int INITIALS = 2;
     static const int STARTING_DNA = 4;
     static const int ORIGINAL_OLIGOS = 8;
-    static const int OLIGOS_WITH_ERRORS = 16;
-    static const int GRAPH = 32;
-    static const int RESULTS_GREEDY = 64;
-    static const int RESULTS_AFTER_COMPACTION = 128;
-    static const int RESULTS_AFTER_LENGTHENING = 256;
-    static const int RESULTS_FINAL = 512;
+    static const int ORIGINAL_LOCATIONS = 16;
+    static const int ORIGINAL_OLIGOS_WITH_LOCATIONS = 32;
+    static const int WITH_ERRORS_OLIGOS = 64;
+    static const int WITH_ERRORS_LOCATIONS = 128;
+    static const int WITH_ERRORS_OLIGOS_WITH_LOCATIONS = 256;
+    static const int GRAPH = 512;
+    static const int RESULTS_GREEDY = 1024;
+    static const int RESULTS_AFTER_COMPACTION = 2048;
+    static const int RESULTS_AFTER_LENGTHENING = 4096;
+    static const int RESULTS_FINAL = 8192;
+
+    
 
     static int printCounter(const int& counter) {
         if (counter == 1) {
@@ -37,14 +43,28 @@ public:
         cout << "\n" << arr << endl;
     }
 
-    static int printDNA(const string dna) {
+    static int printDNA(const string& dna) {
         cout << "\nDNA:\n  " << dna << endl;
     }
 
-    static int printOligos(const string header, const vector<string>& oligos) {
+    static int printOligos(const string& header, const vector<string>& oligos) {
+        cout << "\n" << header << ": " << endl;
+        for (auto& oligo : oligos) {
+            cout << oligo << endl;
+        }
+    }
+
+    static int printLocations(const string& header, const vector<Location>& locations) {
+        cout << "\n" << header << ": " << endl;
+        for (auto& loc : locations) {
+            cout << loc << endl;
+        }
+    }
+
+    static int printOligosWithLocations(const string& header, const vector<string>& oligos, const vector<Location>& locations) {
         cout << "\n" << header << ": " << endl;
         for (int i=0; i<oligos.size(); i++) {
-            cout << oligos[i] << endl;
+            cout << oligos[i] << "  " << locations[i] << endl;
         }
     }
 
@@ -103,6 +123,7 @@ public:
         string resultDNA = makeDNA(result, oligos);
         cout << "\n" << header << ": \n  " << resultDNA << endl;
         printDistance(levenshteinDistance(dnaStr, resultDNA));
+        cout << "Used oligonucleotides: " << result.size() << "/" << dnaStr.size() - k + 1 << endl;
         if (header == "Final result") {
             cout << endl;
         }

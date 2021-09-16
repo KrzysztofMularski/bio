@@ -5,6 +5,7 @@
 class Greedy {
 private:
     vector<string>& oligos;
+    vector<Location>& locations;
     vector<int>** graph;
     int oligosSize;
     string firstOligo;
@@ -27,6 +28,7 @@ public:
         int greedyType = 0
         ) :
         oligos(structure.getOligos()),
+        locations(structure.getLocations()),
         graph(structure.getGraph()),
         oligosSize(structure.getOligosSize()),
         firstOligo(firstOligo),
@@ -39,6 +41,7 @@ public:
     
     Greedy(
         vector<string>& oligos,
+        vector<Location>& locations,
         vector<int>** graph,
         int oligosSize,
         string firstOligo,
@@ -50,6 +53,7 @@ public:
         int greedyType = 1
         ) :
         oligos(oligos),
+        locations(locations),
         graph(graph),
         oligosSize(oligosSize),
         firstOligo(firstOligo),
@@ -137,19 +141,21 @@ public:
             auto it = find(visited.begin(), visited.end(), i);
             auto itTemp = find(newTempVisited.begin(), newTempVisited.end(), i);
             if (it == visited.end() && itTemp == newTempVisited.end()) {
-                int bestOligoWeight = 0;
+                
+                // if (currentDNAlength+newLength < locations[i].left || currentDNAlength+newLength > locations[i].right) {
+                //     continue;
+                // }
+                
+                int bestOligoWeight = graph[index][i][0];
+                int currentTempLength = currentDNAlength + newLength + bestOligoWeight;
+                if (currentTempLength > n)
+                    continue;
+                if (locationNotFit(currentTempLength - k, locations[i])) {
+                    continue;
+                }
                 int bestParentOligoWeight = -1;
-                int newOligosNumber = 0;
-                if (depth == GREEDY_DEPTH) {
-                    bestOligoWeight = graph[index][i][0];
-                    if (currentDNAlength + newLength + bestOligoWeight > n)
-                        continue;
-                    newOligosNumber += 1;
-                } else {
-                    bestOligoWeight = graph[index][i][0];
-                    if (currentDNAlength + newLength + bestOligoWeight > n)
-                        continue;
-                    newOligosNumber += 1;
+                int newOligosNumber = 1;
+                if (depth != GREEDY_DEPTH) {
                     int bestWeight = findBest(i, depth+1, newTempVisited, newLength+bestOligoWeight, newOligosNumber).weight;
                     if (bestWeight != -1)
                         bestOligoWeight += bestWeight;
@@ -189,8 +195,12 @@ public:
             auto itTabu = find(tabuList.begin(), tabuList.end(), i);
             if(it == visited.end() && itTabu == tabuList.end()){
                 bestOligoWeight = graph[index][i][0];
-                if (currentDNAlength + bestOligoWeight > n)
+                int currentTempLength = currentDNAlength + bestOligoWeight;
+                if (currentTempLength > n)
                     continue;
+                if (locationNotFit(currentTempLength - k, locations[i])) {
+                    continue;
+                }
                 if (bestOligoWeight < min) {
                     min = bestOligoWeight;
                     best.weight = bestOligoWeight;

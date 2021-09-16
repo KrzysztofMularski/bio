@@ -6,8 +6,9 @@
 class Tabu{
     string originalDna, firstOligo;
     int dnaLength;
-    vector<string> oligosGreedy;
-    vector<string> oligosAll;
+    vector<string>& oligosGreedy;
+    vector<string>& oligosAll;
+    vector<Location>& locations;
     int oligosAllSize;
     vector<int>& tabuList;
     vector<Pair>& result;
@@ -23,6 +24,7 @@ public:
         int dnaLength,
         vector<string>& oligosGreedy,
         vector<string>& oligosAll,
+        vector<Location>& locations,
         vector<Pair>& result,
         vector<int>** graph,
         vector<int>& visited,
@@ -31,9 +33,10 @@ public:
         ) :
         originalDna(originalDna),
         dnaLength(dnaLength),
-        firstOligo(oligosGreedy[0]),
+        firstOligo(oligosAll[0]),
         oligosGreedy(oligosGreedy),
         oligosAll(oligosAll),
+        locations(locations),
         result(result),
         graph(graph),
         visited(visited),
@@ -46,7 +49,7 @@ public:
     }
 
     void startSearch() {
-        int maxIterations = 1;
+        int maxIterations = 2;
         // int maxIterationsWithNoImprovement;
 
         for (int i=0; i<maxIterations; i++) {
@@ -65,7 +68,6 @@ public:
         {
             vector<float> rating = {0.0};
             int size = result.size();
-            
 
             for(int i = 1; i < size; i++)
             {
@@ -115,7 +117,6 @@ public:
                 }
             }
             else {
-
                 break;
             }
 
@@ -125,7 +126,7 @@ public:
     // wydłużanie
     void lengthening() {
         Greedy greedy(
-            oligosAll, graph, oligosAllSize,
+            oligosAll, locations, graph, oligosAllSize,
             firstOligo, dnaLength, visited,
             result, greedyResultOligos, tabuList,
             Greedy::TYPE_TABU_LENGTHENING);

@@ -87,7 +87,7 @@ public:
         return dna;
     }
 
-    vector<string> getOligos() {
+    vector<string>& getOligos() {
         return oligos;
     }
 
@@ -95,7 +95,7 @@ public:
         return dna.substr(0, k);
     }
 
-    vector<Location> getLocations() {
+    vector<Location>& getLocations() {
         return locations;
     }
 
