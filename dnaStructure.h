@@ -18,7 +18,7 @@ public:
     }
 
     void generateErrors() {
-        toSet();
+        // toSet();
         // oligos = {
         //     "AACT",
         //     "AACC",

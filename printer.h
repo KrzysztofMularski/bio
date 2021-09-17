@@ -20,12 +20,11 @@ public:
     static const int WITH_ERRORS_LOCATIONS = 128;
     static const int WITH_ERRORS_OLIGOS_WITH_LOCATIONS = 256;
     static const int GRAPH = 512;
-    static const int RESULTS_GREEDY = 1024;
-    static const int RESULTS_AFTER_COMPACTION = 2048;
-    static const int RESULTS_AFTER_LENGTHENING = 4096;
-    static const int RESULTS_FINAL = 8192;
-
-    
+    static const int RESULTS_WITHOUT_DNA_STRING = 1024;
+    static const int RESULTS_GREEDY = 2048;
+    static const int RESULTS_AFTER_COMPACTION = 4096;
+    static const int RESULTS_AFTER_LENGTHENING = 8192;
+    static const int RESULTS_FINAL = 16384;
 
     static int printCounter(const int& counter) {
         if (counter == 1) {
@@ -119,9 +118,11 @@ public:
         const vector<Pair>& result,
         const vector<string>& oligos,
         const string& dnaStr) {
-
+        
         string resultDNA = makeDNA(result, oligos);
-        cout << "\n" << header << ": \n  " << resultDNA << endl;
+        cout << "\n" << header << ": " << endl;
+        if (!(TO_PRINT & Printer::RESULTS_WITHOUT_DNA_STRING))
+            cout << "  " << resultDNA << endl;
         printDistance(levenshteinDistance(dnaStr, resultDNA));
         cout << "Used oligonucleotides: " << result.size() << "/" << dnaStr.size() - k + 1 << endl;
         if (header == "Final result") {

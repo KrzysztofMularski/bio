@@ -44,20 +44,31 @@ public:
         greedyResultOligos(greedyResultOligos) {
             
         oligoLength = k;
-        evaluation = (float)result.size() / (float)dnaLength;
+        evaluation = calculateEval(result.size(), dnaLength);
         oligosAllSize = oligosAll.size();
     }
 
-    void startSearch() {
-        int maxIterations = 2;
-        // int maxIterationsWithNoImprovement;
+    static float calculateEval(const int resultSize, const int dnaLength) {
+        return (float)resultSize / (float)dnaLength;
+    }
 
-        for (int i=0; i<maxIterations; i++) {
+    void startSearch() {
+        
+        int iterationsWithNoImprovement = 0;
+        for (int i=0; i<MAX_TABU_ITERATIONS; i++) {
             compaction();
             TO_PRINT & Printer::RESULTS_AFTER_COMPACTION && Printer::printResults("After compaction", result, oligosAll, originalDna);
 
             lengthening();
             TO_PRINT & Printer::RESULTS_AFTER_LENGTHENING && Printer::printResults("After lengthening", result, oligosAll, originalDna);
+            
+            float currentEval = calculateEval(result.size(), dnaLength);
+            if (currentEval == evaluation) {
+                iterationsWithNoImprovement++;
+            }
+            if (MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT != -1 && iterationsWithNoImprovement >= MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT) {
+                break;
+            }
         }
     }
 
@@ -132,6 +143,7 @@ public:
             Greedy::TYPE_TABU_LENGTHENING);
         
         greedy.calculateResult();
+        dnaLength = greedy.getResultDnaLength();
     }
 
     vector<Pair>& getResult() {

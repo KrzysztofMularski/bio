@@ -17,6 +17,8 @@ struct Instance {
     int greedyDepth;
     Random_Type locationRandomType; // Linear or Gaussian
     int tabuListLength;
+    int maxTabuIterations;
+    int maxTabuIterationsWithNoImprovement;
     int toPrint;
 
     Instance(
@@ -28,6 +30,8 @@ struct Instance {
         int greedyDepth,
         Random_Type locationRandomType,
         int tabuListLength,
+        int maxTabuIterations,
+        int maxTabuIterationsWithNoImprovement,
         int toPrint
         ) :
         repetition(repetition),
@@ -38,6 +42,8 @@ struct Instance {
         greedyDepth(greedyDepth),
         locationRandomType(locationRandomType),
         tabuListLength(tabuListLength),
+        maxTabuIterations(maxTabuIterations),
+        maxTabuIterationsWithNoImprovement(maxTabuIterationsWithNoImprovement),
         toPrint(toPrint) {}
     
 };
@@ -67,6 +73,8 @@ public:
         LOCATION_RANGE = i.locationRange;
         LOCATION_RANDOM_TYPE = i.locationRandomType;
         TABU_LIST_LENGTH = i.tabuListLength;
+        MAX_TABU_ITERATIONS = i.maxTabuIterations;
+        MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT = i.maxTabuIterationsWithNoImprovement;
         TO_PRINT = i.toPrint;
 
         TO_PRINT & Printer::INITIALS && Printer::printInitials();
