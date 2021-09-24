@@ -1,15 +1,16 @@
+#pragma once
+
 #include <random>
 #include <time.h>
 #include "additives.h"
 #include "printer.h"
 #include "locator.h"
 
-#pragma once
-
 class Dna {
 private:
     string dna;
     vector<string> oligos;
+    vector<int> oligosAsNumbers;
     vector<Location> locations;
     Locator locator;
 
@@ -23,9 +24,9 @@ public:
             for (int i=0; i<n; i++) {
                 dna[i] = 'A' + rand() % 4;
                 if (dna[i] == 'B')
-                    dna[i] = 'T';
-                else if (dna[i] == 'D')
                     dna[i] = 'G';
+                else if (dna[i] == 'D')
+                    dna[i] = 'T';
             }
         } else {
             dna = dnaString;
@@ -34,54 +35,58 @@ public:
         // generating (m = n - k + 1) oligonucleotides of length k
         int m = n - k + 1;
         // dna = "CCCGA"; // temp
-        vector<OligosWithLocation> oligosWithLocation(m);
+        vector<OligoWithPosition> oligoWithPosition(m);
         for (int i=0; i<m; i++) {
-            oligosWithLocation[i] = {dna.substr(i, k), i};
+            string oligo = dna.substr(i, k);
+            oligoWithPosition[i] = {dna.substr(i, k), i};
         }
-
-
-        // oligos = vector<string>(m);
-        // for (int i=0; i<m; i++) {
-        //     oligos[i] = dna.substr(i, k);
-        // }
-
-        // oligonucleotides before sorting
-        // print("Oligonucleotides before sorting:");
-        // printOligos(oligos);
-        // printDNA(dna);
 
         // oligonucleotides mixing - sorting in alphabetical order
         sort(
-            oligosWithLocation.begin(),
-            oligosWithLocation.end(),
-            [](const OligosWithLocation& a, const OligosWithLocation& b) {
+            oligoWithPosition.begin(),
+            oligoWithPosition.end(),
+            [](const OligoWithPosition& a, const OligoWithPosition& b) {
                 return a.oligo < b.oligo;
             }
         );
 
-        // sort(oligos.begin(), oligos.end(), [](const string& a, const string& b) {return a < b;});
-
         oligos = vector<string>(m);
+        oligosAsNumbers = vector<int>(m);
         locations = vector<Location>(m);
         for (int i=0; i<m; i++) {
-            oligos[i] = oligosWithLocation[i].oligo;
-            
-            int index = oligosWithLocation[i].index;
+            oligos[i] = oligoWithPosition[i].oligo;
+            oligosAsNumbers[i] = convertOligoToInt(oligos[i]);
+            int index = oligoWithPosition[i].index;
             Location loc = locator.getLocation(index, LOCATION_RANDOM_TYPE);
 
             locations[i] = loc;
         }
-        
-        // oligonucleotides after sorting
-        // print("Oligonucleotides after sorting:");
-        // printOligos(oligos);
-        // printDNA(dna);
-
-        // (unnecessary) checking if it is in order
-        // printErrors(oligos);
     }
 
     ~Dna() {}
+
+    inline static int convertOligoToInt(const string& oligo) {
+        int accum = 0;
+        const int base = 4;
+        int power = 1;
+        for (int i=k-1; i>=0; --i) {
+            int digit = 3;
+            switch(oligo[i]) {
+            case 'A':
+                digit = 0;
+                break;
+            case 'C':
+                digit = 1;
+                break;
+            case 'G':
+                digit = 2;
+                break;
+            }
+            accum += power * digit;
+            power *= base;
+        }
+        return accum;
+    }
 
     string getDna() {
         return dna;
@@ -89,6 +94,10 @@ public:
 
     vector<string>& getOligos() {
         return oligos;
+    }
+
+    vector<int>& getOligosAsNumbers() {
+        return oligosAsNumbers;
     }
 
     string getFirst() {

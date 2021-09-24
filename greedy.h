@@ -1,6 +1,6 @@
-#include "additives.h"
-
 #pragma once
+
+#include "additives.h"
 
 class Greedy {
 private:
@@ -237,15 +237,6 @@ public:
     //     }
     //     return best;
     // }
-
-    
-
-    static int getIndex(const vector<string>& v, const string& s)
-    {
-        auto it = find(v.begin(), v.end(), s);
-
-        return it != v.end() ? it - v.begin() : -1; // if found then return index
-    }
 
     vector<Pair>& getResult() {
         return greedyResult;

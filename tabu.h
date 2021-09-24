@@ -1,7 +1,7 @@
+#pragma once
+
 #include "additives.h"
 #include "greedy.h"
-
-#pragma once
 
 class Tabu{
     string originalDna, firstOligo;

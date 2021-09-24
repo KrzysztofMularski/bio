@@ -1,3 +1,5 @@
+#pragma once
+
 #include "dna.h"
 #include "dnaStructure.h"
 #include "greedy.h"
@@ -6,13 +8,13 @@
 #include "printer.h"
 #include "additives.h"
 
-#pragma once
-
 struct Instance {
     int repetition;
     int dnaLength;
     int oligoLength;
     string dna;
+    float positiveErrorPercentage;
+    float negativeErrorPercentage;
     int locationRange;
     int greedyDepth;
     Random_Type locationRandomType; // Linear or Gaussian
@@ -26,6 +28,8 @@ struct Instance {
         int dnaLength,
         int oligoLength,
         string dna,
+        float positiveErrorPercentage,
+        float negativeErrorPercentage,
         int locationRange,
         int greedyDepth,
         Random_Type locationRandomType,
@@ -38,6 +42,8 @@ struct Instance {
         dnaLength(dnaLength),
         oligoLength(oligoLength),
         dna(dna),
+        positiveErrorPercentage(positiveErrorPercentage),
+        negativeErrorPercentage(negativeErrorPercentage),
         locationRange(locationRange),
         greedyDepth(greedyDepth),
         locationRandomType(locationRandomType),
@@ -69,6 +75,8 @@ public:
 
         n = i.dnaLength;
         k = i.oligoLength;
+        POSITIVE_ERRORS_PERCENTAGE = i.positiveErrorPercentage;
+        NEGATIVE_ERRORS_PERCENTAGE = i.negativeErrorPercentage;
         GREEDY_DEPTH = i.greedyDepth;
         LOCATION_RANGE = i.locationRange;
         LOCATION_RANDOM_TYPE = i.locationRandomType;
@@ -83,6 +91,7 @@ public:
 
         string dnaStr = dna.getDna();
         vector<string>& oligos = dna.getOligos();
+        vector<int>& oligosAsNumbers = dna.getOligosAsNumbers();
         string firstOligo = dna.getFirst();
         vector<Location>& locations = dna.getLocations();
         
@@ -91,7 +100,7 @@ public:
         TO_PRINT & Printer::ORIGINAL_LOCATIONS && Printer::printLocations("Original oligonucleotides locations", locations);
         TO_PRINT & Printer::ORIGINAL_OLIGOS_WITH_LOCATIONS && Printer::printOligosWithLocations("Original oligonucleotides with locations", oligos, locations);
 
-        DnaStructure structure(oligos, locations);
+        DnaStructure structure(oligos, oligosAsNumbers, locations);
         structure.generateErrors();
 
         TO_PRINT & Printer::WITH_ERRORS_OLIGOS && Printer::printOligos("Oligonucleotides with errors", oligos);
@@ -101,7 +110,7 @@ public:
         structure.generateGraph();
         structure.populateGraph();
 
-        TO_PRINT & Printer::GRAPH && Printer::printGraph(structure);
+        TO_PRINT & Printer::GRAPH && Printer::printGraph(structure.getGraph(), structure.getOligosSize());
 
         vector<int> visited;
         vector<Pair> result;

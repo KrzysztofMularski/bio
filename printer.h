@@ -1,30 +1,31 @@
+#pragma once
+
 #include <iomanip>
 #include "additives.h"
-#include "dnaStructure.h"
 #include "finals.h"
-
-#pragma once
 
 class Printer {
 private:
     Printer() {}
 public:
 
-    static const int COUNTER = 1;
-    static const int INITIALS = 2;
-    static const int STARTING_DNA = 4;
-    static const int ORIGINAL_OLIGOS = 8;
-    static const int ORIGINAL_LOCATIONS = 16;
-    static const int ORIGINAL_OLIGOS_WITH_LOCATIONS = 32;
-    static const int WITH_ERRORS_OLIGOS = 64;
-    static const int WITH_ERRORS_LOCATIONS = 128;
-    static const int WITH_ERRORS_OLIGOS_WITH_LOCATIONS = 256;
-    static const int GRAPH = 512;
-    static const int RESULTS_WITHOUT_DNA_STRING = 1024;
-    static const int RESULTS_GREEDY = 2048;
-    static const int RESULTS_AFTER_COMPACTION = 4096;
-    static const int RESULTS_AFTER_LENGTHENING = 8192;
-    static const int RESULTS_FINAL = 16384;
+    static const int COUNTER                            = 0b00000000000000001;
+    static const int INITIALS                           = 0b00000000000000010;
+    static const int STARTING_DNA                       = 0b00000000000000100;
+    static const int ORIGINAL_OLIGOS                    = 0b00000000000001000;
+    static const int ORIGINAL_LOCATIONS                 = 0b00000000000010000;
+    static const int ORIGINAL_OLIGOS_WITH_LOCATIONS     = 0b00000000000100000;
+    static const int POSITIVE_ERRORS                    = 0b00000000001000000;
+    static const int NEGATIVE_ERRORS                    = 0b00000000010000000;
+    static const int WITH_ERRORS_OLIGOS                 = 0b00000000100000000;
+    static const int WITH_ERRORS_LOCATIONS              = 0b00000001000000000;
+    static const int WITH_ERRORS_OLIGOS_WITH_LOCATIONS  = 0b00000010000000000;
+    static const int GRAPH                              = 0b00000100000000000;
+    static const int RESULTS_WITHOUT_DNA_STRING         = 0b00001000000000000;
+    static const int RESULTS_GREEDY                     = 0b00010000000000000;
+    static const int RESULTS_AFTER_COMPACTION           = 0b00100000000000000;
+    static const int RESULTS_AFTER_LENGTHENING          = 0b01000000000000000;
+    static const int RESULTS_FINAL                      = 0b10000000000000000;
 
     static int printCounter(const int& counter) {
         if (counter == 1) {
@@ -46,10 +47,25 @@ public:
         cout << "\nDNA:\n  " << dna << endl;
     }
 
-    static int printOligos(const string& header, const vector<string>& oligos) {
-        cout << "\n" << header << ": " << endl;
-        for (auto& oligo : oligos) {
-            cout << oligo << endl;
+    static int printOligos(const string& header, const vector<string>& oligos, const string& emptyHeader = nullptr) {
+        if (oligos.size()) {
+            cout << "\n" << header << ": " << endl;
+            for (auto& oligo : oligos) {
+                cout << oligo << endl;
+            }
+        } else {
+            cout << "\n" << emptyHeader << endl;
+        }
+    }
+
+    static int printNegativeErrors(const string& header, const vector<int>& indexes, const vector<string>& oligos, const string& emptyHeader = nullptr) {
+        if (indexes.size()) {
+            cout << "\n" << header << ": " << endl;
+            for (const int& index : indexes) {
+                cout << "oligos[" << index << "]: " << oligos[index] << endl;
+            }
+        } else {
+            cout << "\n" << emptyHeader << endl;
         }
     }
 
@@ -67,22 +83,8 @@ public:
         }
     }
 
-    static int printGraph(DnaStructure& structure) {
+    static int printGraph(vector<int>** graph, const int m) {
         cout << "\nGraph: " << endl;
-        vector<int>** graph = structure.getGraph();
-        const int m = structure.getOligosSize();
-        for (int i=0; i<m; i++) {
-            for (int j=0; j<m; j++) {
-                for (int l=0; l<graph[i][j].size(); l++) {
-                    cout << graph[i][j][l] << ", ";
-                }
-                cout << "|";
-            }
-            cout << endl;
-        }
-    }
-
-    static int printGraph2(vector<int>** graph, int m) {
         for (int i=0; i<m; i++) {
             for (int j=0; j<m; j++) {
                 for (int l=0; l<graph[i][j].size(); l++) {
@@ -100,17 +102,6 @@ public:
 
     static int printDistance(const int distance) {
         cout << "Distance: " << distance << endl;
-    }
-
-    static int printErrors(const vector<string>& oligos) {
-        int err = 0;
-        for (int i=0; i<oligos.size()-1; i++) {
-            if (oligos[i].compare(oligos[i+1]) > 0) {
-                cout << "Error: " << i << " - " << i+1 << endl;
-                err++;
-            }
-        }
-        cout << "Total errors: " << err << endl;
     }
 
     static int printResults(
