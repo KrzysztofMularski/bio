@@ -96,7 +96,7 @@ public:
         }
     }
 
-    static int printResultDNA(const string resultDNA) {
+    static int printResultDNA(const string& resultDNA) {
         cout << "Result DNA:\n  " << resultDNA << endl;
     }
 
@@ -115,7 +115,9 @@ public:
         if (!(TO_PRINT & Printer::RESULTS_WITHOUT_DNA_STRING))
             cout << "  " << resultDNA << endl;
         printDistance(levenshteinDistance(dnaStr, resultDNA));
-        cout << "Used oligonucleotides: " << result.size() << "/" << dnaStr.size() - k + 1 << endl;
+        cout << "Result DNA length: " << resultDNA.size() << "/" << dnaStr.size() << " =~ " << (double)resultDNA.size() / (double)dnaStr.size() << endl;
+        cout << "Used oligonucleotides: " << result.size() << "/" << oligos.size() << " =~ " << (double)result.size() / (double)oligos.size() << endl;
+        cout << "Global rating: " << result.size() << "/" << resultDNA.size() << " =~ " << (double)result.size() / (double)resultDNA.size() << endl;
         if (header == "Final result") {
             cout << endl;
         }

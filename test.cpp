@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
 
@@ -28,6 +29,8 @@ void toSet(vector<int>& oligos) {
 }
 
 int main() {
+
+    
     
     vector<int> arr = {1, 2, 3, 3, 2, 1};
 

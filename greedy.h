@@ -83,15 +83,21 @@ public:
             index = greedyResult.back().index;
         }
 
+        int flag = 0;
+
         while(true) {
             if (greedyType == Greedy::TYPE_GREEDY) {
                 int oligosNumber = 0;
-                pair = findBest(index, 1, {}, 0, oligosNumber);
+                if (GREEDY_DEPTH > 1)
+                    pair = findBest(index, 1, {}, 0, oligosNumber);
+                else
+                    pair = findBestShallow(index);
             } else {
                 pair = findBestTabu(index);
             }
             if (pair.index == -1)
                 break;
+
             greedyResult.push_back(pair);
             visited.push_back(pair.index);
             add(tabuList, pair.index);
@@ -102,33 +108,12 @@ public:
             
             index = pair.index;
         }
-        // if (greedyType == Greedy::TYPE_GREEDY) {
-        //     result = {
-        //         {2, -1},
-        //         {5, 1},
-        //         {6, 1},
-        //         {1, 2},
-        //         {4, 2}
-        //     };
-        // }
         
         for(auto pair : greedyResult)
         {
             greedyResultOligos.push_back(oligos[pair.index]);
         }
     }
-
-    // Pair findBest(int index) {
-    //     Pair best = { -1, -1 };
-    //     for (int i=0; i < oligosSize; i++) {
-    //         auto it = find(visited.begin(), visited.end(), i);
-    //         if (it == visited.end()) {
-    //             // if not visited:
-                
-    //         }
-    //         Pair candidate = findBestRec()
-    //     }
-    // }
 
     Pair findBest(int index, int depth, vector<int> tempVisited, int newLength, int& prevOligosNumber) {
     
@@ -138,13 +123,9 @@ public:
         int maxOligosNumber = 0;
         int min = 99999;
         for (int i=0; i < oligosSize; i++) {
-            auto it = find(visited.begin(), visited.end(), i);
-            auto itTemp = find(newTempVisited.begin(), newTempVisited.end(), i);
-            if (it == visited.end() && itTemp == newTempVisited.end()) {
-                
-                // if (currentDNAlength+newLength < locations[i].left || currentDNAlength+newLength > locations[i].right) {
-                //     continue;
-                // }
+            // auto it = find(visited.begin(), visited.end(), i);
+            // auto itTemp = find(newTempVisited.begin(), newTempVisited.end(), i);
+            // if (it == visited.end() && itTemp == newTempVisited.end()) {
                 
                 int bestOligoWeight = graph[index][i][0];
                 int currentTempLength = currentDNAlength + newLength + bestOligoWeight;
@@ -179,9 +160,34 @@ public:
                         best = { i, bestOligoWeight };
                     }
                 }
-            }
+            // }
         }
         prevOligosNumber += maxOligosNumber;
+        return best;
+    }
+
+    Pair findBestShallow(int index) { // if GREEDY_DEPTH = 1
+        Pair best = { -1, -1 };
+        int bestOligoWeight;
+        int min = k+1;
+        for(int i = 0; i < oligosSize; i++)
+        {
+            // auto it = find(visited.begin(), visited.end(), i);
+            // if(it == visited.end()){
+                bestOligoWeight = graph[index][i][0];
+                int currentTempLength = currentDNAlength + bestOligoWeight;
+                if (currentTempLength > n)
+                    continue;
+                if (locationNotFit(currentTempLength - k, locations[i])) {
+                    continue;
+                }
+                if (bestOligoWeight < min) {
+                    min = bestOligoWeight;
+                    best.weight = bestOligoWeight;
+                    best.index = i;
+                }
+            // }      
+        }
         return best;
     }
     
@@ -191,9 +197,9 @@ public:
         int min = k+1;
         for(int i = 0; i < oligosSize; i++)
         {
-            auto it = find(visited.begin(), visited.end(), i);
+            // auto it = find(visited.begin(), visited.end(), i);
             auto itTabu = find(tabuList.begin(), tabuList.end(), i);
-            if(it == visited.end() && itTabu == tabuList.end()){
+            if(/*it == visited.end() && */itTabu == tabuList.end()){
                 bestOligoWeight = graph[index][i][0];
                 int currentTempLength = currentDNAlength + bestOligoWeight;
                 if (currentTempLength > n)
@@ -210,33 +216,6 @@ public:
         }
         return best;
     }
-
-    // static int findBestRecur(vector<int>* graphRow, int oligosSize, vector<int>& visited, vector<int>& tempVisited, int depth, int currentScore ) {
-
-    // }
-
-    // static Pair findBest(vector<int>* graphRow, int oligosSize, vector<int>& visited) {
-    //     Pair best;
-    //     best.index = -1;
-    //     best.weight = -1;
-    //     int bestCellWeight, score, min = k+2;
-    //     for(int i = 0; i < oligosSize; i++)
-    //     {
-    //         auto it = find(visited.begin(), visited.end(), i);
-    //         if(it == visited.end()){
-    //             // current element not visited
-    //             vector<int> tempVisited = {i};
-    //             int bestCellWeight = *min_element(graphRow[i].begin(), graphRow[i].end());
-    //             score = findBestRecur(graphRow, oligosSize, visited, tempVisited, 1, bestCellWeight);
-    //             if(score < min){
-    //                 min = score;
-    //                 best.weight = bestCellWeight;
-    //                 best.index = i;
-    //             }
-    //         }      
-    //     }
-    //     return best;
-    // }
 
     vector<Pair>& getResult() {
         return greedyResult;

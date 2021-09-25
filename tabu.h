@@ -33,7 +33,6 @@ public:
         ) :
         originalDna(originalDna),
         dnaLength(dnaLength),
-        firstOligo(oligosAll[0]),
         oligosGreedy(oligosGreedy),
         oligosAll(oligosAll),
         locations(locations),
@@ -42,7 +41,8 @@ public:
         visited(visited),
         tabuList(tabuList),
         greedyResultOligos(greedyResultOligos) {
-            
+        
+        firstOligo = oligosAll[result[0].index];
         oligoLength = k;
         evaluation = calculateEval(result.size(), dnaLength);
         oligosAllSize = oligosAll.size();
@@ -83,14 +83,6 @@ public:
             for(int i = 1; i < size; i++)
             {
                 int current, next = 0, newNext = 0;
-                // auto it = find(tabuList.begin(), tabuList.end(), result[i].index);
-                // if (it != tabuList.end()) {
-                //     // found something
-                //     rating.push_back(-1.0);
-                //     continue;
-                // }
-
-                string temp = oligosAll[result[i].index];
                 
                 current = result[i].weight;
                 if(i != size - 1)
@@ -124,7 +116,7 @@ public:
 
                 // bestIndex now points to the next element after the best which was removed
                 if (bestIndex != size) {
-                    result[bestIndex].weight = graph[bestIndex-1][bestIndex][0];
+                    result[bestIndex].weight = graph[result[bestIndex-1].index][result[bestIndex].index][0];
                 }
             }
             else {
@@ -136,6 +128,7 @@ public:
 
     // wydłużanie
     void lengthening() {
+
         Greedy greedy(
             oligosAll, locations, graph, oligosAllSize,
             firstOligo, dnaLength, visited,

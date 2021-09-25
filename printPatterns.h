@@ -5,7 +5,7 @@
 const int toPrint = 0
     | Printer::COUNTER
     // | Printer::INITIALS
-    | Printer::STARTING_DNA
+    // | Printer::STARTING_DNA
     // | Printer::ORIGINAL_OLIGOS
     // | Printer::ORIGINAL_LOCATIONS
     // | Printer::ORIGINAL_OLIGOS_WITH_LOCATIONS
@@ -15,9 +15,9 @@ const int toPrint = 0
     // | Printer::WITH_ERRORS_LOCATIONS
     // | Printer::WITH_ERRORS_OLIGOS_WITH_LOCATIONS
     // | Printer::GRAPH
-    // | Printer::RESULTS_WITHOUT_DNA_STRING
+    | Printer::RESULTS_WITHOUT_DNA_STRING
     | Printer::RESULTS_GREEDY
-    // | Printer::RESULTS_AFTER_COMPACTION
-    // | Printer::RESULTS_AFTER_LENGTHENING
+    | Printer::RESULTS_AFTER_COMPACTION
+    | Printer::RESULTS_AFTER_LENGTHENING
     | Printer::RESULTS_FINAL
     ;
