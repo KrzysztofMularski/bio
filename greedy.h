@@ -83,8 +83,6 @@ public:
             index = greedyResult.back().index;
         }
 
-        int flag = 0;
-
         while(true) {
             if (greedyType == Greedy::TYPE_GREEDY) {
                 int oligosNumber = 0;
@@ -100,10 +98,9 @@ public:
 
             greedyResult.push_back(pair);
             visited.push_back(pair.index);
-            add(tabuList, pair.index);
             currentDNAlength += pair.weight;
 
-            if (currentDNAlength >= n || visited.size() == oligosSize)
+            if (currentDNAlength >= n)
                 break;
             
             index = pair.index;
@@ -190,7 +187,7 @@ public:
         }
         return best;
     }
-    
+    // lengthening
     Pair findBestTabu(int index) {
         Pair best = { -1, -1 };
         int bestOligoWeight;
@@ -214,6 +211,7 @@ public:
                 }
             }      
         }
+
         return best;
     }
 

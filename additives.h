@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -43,7 +44,7 @@ struct OligoWithLocation {
 };
 
 std::ostream& operator<<(std::ostream& os, const Location& loc) {
-    os << "~[" << loc.left << ", " << loc.right << "]";
+    os << "[" << loc.left << ", " << loc.right << "]";
     return os;
 }
 
@@ -51,10 +52,11 @@ inline bool locationNotFit(const int lastOligoIndex, const Location& loc) {
     return lastOligoIndex < loc.left || lastOligoIndex > loc.right;
 }
 
-inline void add(vector<int>& tabuList, const int& element) {
+inline void add(vector<int>& tabuList, int element) {
     tabuList.push_back(element);
-    if (tabuList.size() > TABU_LIST_LENGTH)
+    if (tabuList.size() > TABU_LIST_LENGTH) {
         tabuList.erase(tabuList.begin());
+    }
 }
 
 template <typename Type>
@@ -63,4 +65,12 @@ int getIndex(const vector<Type>& v, const Type& t)
     auto it = find(v.begin(), v.end(), t);
 
     return it != v.end() ? it - v.begin() : -1; // if found then return index
+}
+
+inline size_t calcHash(const vector<Pair>& res) {
+    stringstream ss;
+    for (const Pair& pair : res)
+        ss << "_" << pair.index << "_" << pair.weight;
+    hash<string> str_hash;
+    return str_hash(ss.str());
 }

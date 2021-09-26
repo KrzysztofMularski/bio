@@ -17,7 +17,7 @@ const int toPrint = 0
     // | Printer::GRAPH
     | Printer::RESULTS_WITHOUT_DNA_STRING
     | Printer::RESULTS_GREEDY
-    | Printer::RESULTS_AFTER_COMPACTION
+    // | Printer::RESULTS_AFTER_COMPACTION
     | Printer::RESULTS_AFTER_LENGTHENING
-    | Printer::RESULTS_FINAL
+    // | Printer::RESULTS_FINAL
     ;

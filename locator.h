@@ -18,11 +18,14 @@ public:
         int loc_range = LOCATION_RANGE-1 < n-1 ? LOCATION_RANGE-1 : n-1;
         int half_loc_range = (loc_range + 1) / 2;
 
+        if (loc_range == 0)
+            return { index, index };
+
         int number = 0;
         if (r_type == Random_Type::GAUSSIAN) {
             number += getGaussianRandom(loc_range, index);
         } else {
-            number += getLinearRandom(loc_range) + index;
+            number += getLinearRandom(loc_range+1) + index - half_loc_range + 1;
         }
         int left = number - half_loc_range;
         int right = number + half_loc_range;
@@ -38,6 +41,18 @@ public:
             int diff = right - (n-1);
             left -= diff;
             right = n-1;
+        }
+
+        if (left > index) {
+            int diff = left - index;
+            left -= diff;
+            right -= diff;
+        }
+
+        if (right < index) {
+            int diff = index - right;
+            left += diff;
+            right += diff;
         }
         // [45, 55]
         // if (right < 52)  // 46

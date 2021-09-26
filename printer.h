@@ -118,6 +118,7 @@ public:
         cout << "Result DNA length: " << resultDNA.size() << "/" << dnaStr.size() << " =~ " << (double)resultDNA.size() / (double)dnaStr.size() << endl;
         cout << "Used oligonucleotides: " << result.size() << "/" << oligos.size() << " =~ " << (double)result.size() / (double)oligos.size() << endl;
         cout << "Global rating: " << result.size() << "/" << resultDNA.size() << " =~ " << (double)result.size() / (double)resultDNA.size() << endl;
+        cout << "Result hash: " << calcHash(result) << endl;
         if (header == "Final result") {
             cout << endl;
         }
