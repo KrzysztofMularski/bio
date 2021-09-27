@@ -192,6 +192,10 @@ public:
         sort(vecs.begin(), vecs.end(), [](const OligoWithLocation& a, const OligoWithLocation& b) { return a.oligo < b.oligo; });
     }
 
+    inline static void vecs_sort_newOrder(vector<OligoWithLocationWithOrder>& vecs) {
+        sort(vecs.begin(), vecs.end(), [](const OligoWithLocationWithOrder& a, const OligoWithLocationWithOrder& b) { return a.indexOrder < b.indexOrder; });
+    }
+
     void applyNegativeErrors(vector<int>& negErrorsIndexes) {
         int negErrorsIndexesSize = negErrorsIndexes.size();
         while (negErrorsIndexesSize > 0) {
@@ -217,8 +221,8 @@ public:
     void generateErrors() {
         // calculating exact number of positive and negative errors
         int spectrumSize = n - k + 1;
-        int posErrorsNumber = (int)(POSITIVE_ERRORS_PERCENTAGE / 100.0 * (float)spectrumSize + 0.5);
-        int negErrorsNumber = (int)(NEGATIVE_ERRORS_PERCENTAGE / 100.0 * (float)spectrumSize + 0.5);
+        int posErrorsNumber = (int)((float)POSITIVE_ERRORS_PERCENTAGE / 100.0 * (float)spectrumSize + 0.5);
+        int negErrorsNumber = (int)((float)NEGATIVE_ERRORS_PERCENTAGE / 100.0 * (float)spectrumSize + 0.5);
 
         // generating positive errors and store them in vector for now
         vector<string> posErrors(posErrorsNumber, string(k, 'A'));
@@ -247,6 +251,38 @@ public:
             locations[i] = oligosWithLocations[i].location;
         }
         
+    }
+
+    void reversePairs() {
+        reverse(oligos.begin(), oligos.end());
+        reverse(locations.begin(), locations.end());
+    }
+
+    void mixPairs() {
+        vector<int> allIndexesSorted(oligosSize);
+        for (int i=0; i<oligosSize; ++i) {
+            allIndexesSorted[i] = i;
+        }
+
+        vector<int> mixedIndexes(oligosSize);
+        for (int i=0; i<oligosSize; ++i) {
+            const int randomIndex = rand() % allIndexesSorted.size();
+            mixedIndexes[i] = allIndexesSorted[randomIndex];
+            allIndexesSorted.erase(allIndexesSorted.begin() + randomIndex);
+        }
+
+        vector<OligoWithLocationWithOrder> oligosWithLocationsWithOrder(oligosSize);
+        for (int i=0; i<oligosSize; ++i) {
+            oligosWithLocationsWithOrder[i] = { oligos[i], locations[i], mixedIndexes[i] };
+        }
+
+        vecs_sort_newOrder(oligosWithLocationsWithOrder);
+
+        for (int i=0; i<oligosSize; ++i) {
+            oligos[i] = oligosWithLocationsWithOrder[i].oligo;
+            locations[i] = oligosWithLocationsWithOrder[i].location;
+        }
+
     }
 
     void generateGraph() {

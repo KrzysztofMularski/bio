@@ -21,6 +21,7 @@ struct Instance {
     int tabuListLength;
     int maxTabuIterations;
     int maxTabuIterationsWithNoImprovement;
+    int globalMaxIterations;
     int toPrint;
 
     Instance(
@@ -36,6 +37,7 @@ struct Instance {
         int tabuListLength,
         int maxTabuIterations,
         int maxTabuIterationsWithNoImprovement,
+        int globalMaxIterations,
         int toPrint
         ) :
         repetition(repetition),
@@ -50,6 +52,7 @@ struct Instance {
         tabuListLength(tabuListLength),
         maxTabuIterations(maxTabuIterations),
         maxTabuIterationsWithNoImprovement(maxTabuIterationsWithNoImprovement),
+        globalMaxIterations(globalMaxIterations),
         toPrint(toPrint) {}
     
 };
@@ -83,6 +86,7 @@ public:
         TABU_LIST_LENGTH = i.tabuListLength;
         MAX_TABU_ITERATIONS = i.maxTabuIterations;
         MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT = i.maxTabuIterationsWithNoImprovement;
+        GLOBAL_MAX_ITERATIONS = i.globalMaxIterations;
         TO_PRINT = i.toPrint;
 
         TO_PRINT & Printer::INITIALS && Printer::printInitials();
@@ -108,26 +112,40 @@ public:
         TO_PRINT & Printer::WITH_ERRORS_OLIGOS_WITH_LOCATIONS && Printer::printOligosWithLocations("Oligonucleotides with errors with locations", oligos, locations);
         
         structure.generateGraph();
-        structure.populateGraph();
 
-        TO_PRINT & Printer::GRAPH && Printer::printGraph(structure.getGraph(), structure.getOligosSize());
+        vector<vector<int>> globalClusters;
 
-        vector<int> visited;
-        vector<Pair> result;
-        vector<string> greedyResultOligos;
-        vector<int> tabuList;
+        for (int i=0; i<GLOBAL_MAX_ITERATIONS; ++i) {
+            // oligos and locations pairs permutation
+            if (i == 0) {
+                // oligos and locations pairs sorted alphabetically (default)
+            } else if (i == 1) {
+                // oligos and locations pairs sorted alphabetically in reverse order
+                structure.reversePairs();
+            } else {
+                // oligos and locations pairs randomly mixed up
+                structure.mixPairs();
+            }
 
-        Greedy greedy(structure, firstOligo, visited, result, greedyResultOligos, tabuList, Greedy::TYPE_GREEDY);
-        greedy.calculateResult();
-        int resultDnaLength = greedy.getResultDnaLength();
+            structure.populateGraph();
 
-        TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
+            TO_PRINT & Printer::GRAPH && Printer::printGraph(structure.getGraph(), structure.getOligosSize());
 
-        Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, locations, result, structure.getGraph(), greedy.getVisited(), tabuList, greedyResultOligos);
-        tabu.startSearch();
+            vector<int> visited;
+            vector<Pair> result;
+            vector<string> greedyResultOligos;
+            vector<int> tabuList;
 
-        TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);
+            Greedy greedy(structure, firstOligo, visited, result, greedyResultOligos, tabuList, Greedy::TYPE_GREEDY);
+            greedy.calculateResult();
+            int resultDnaLength = greedy.getResultDnaLength();
 
+            TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
+
+            Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, locations, result, structure.getGraph(), greedy.getVisited(), tabuList, greedyResultOligos);
+            tabu.startSearch();
+
+            TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);
+        }
     }
-
 };

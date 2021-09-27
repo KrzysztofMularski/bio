@@ -21,6 +21,7 @@ int INSTANCE_COUNTER;
 int TABU_LIST_LENGTH;
 int MAX_TABU_ITERATIONS;
 int MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT;
+int GLOBAL_MAX_ITERATIONS;
 int TO_PRINT;
 
 struct Pair {
@@ -41,6 +42,12 @@ struct Location {
 struct OligoWithLocation {
     string oligo;
     Location location;
+};
+
+struct OligoWithLocationWithOrder {
+    string oligo;
+    Location location;
+    int indexOrder;
 };
 
 std::ostream& operator<<(std::ostream& os, const Location& loc) {
