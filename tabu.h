@@ -3,44 +3,37 @@
 #include "additives.h"
 #include "greedy.h"
 
-class Tabu{
+class Tabu {
+private:
     string originalDna, firstOligo;
     int dnaLength;
-    vector<string>& oligosGreedy;
     vector<string>& oligosAll;
     vector<Location>& locations;
     int oligosAllSize;
     vector<int>& tabuList;
     vector<Pair>& result;
-    vector<int>& visited;
     int oligoLength;
     float evaluation;
     vector<int>** graph;
-    vector<string>& greedyResultOligos;
+    set<vector<int>> tabuClusters;
 
 public:
     Tabu(
         string originalDna,
         int dnaLength,
-        vector<string>& oligosGreedy,
         vector<string>& oligosAll,
         vector<Location>& locations,
         vector<Pair>& result,
         vector<int>** graph,
-        vector<int>& visited,
-        vector<int>& tabuList,
-        vector<string>& greedyResultOligos
+        vector<int>& tabuList
         ) :
         originalDna(originalDna),
         dnaLength(dnaLength),
-        oligosGreedy(oligosGreedy),
         oligosAll(oligosAll),
         locations(locations),
         result(result),
         graph(graph),
-        visited(visited),
-        tabuList(tabuList),
-        greedyResultOligos(greedyResultOligos) {
+        tabuList(tabuList) {
         
         firstOligo = oligosAll[result[0].index];
         oligoLength = k;
@@ -92,7 +85,7 @@ public:
     }
 
     void startSearch() {
-        
+
         int iterationsWithNoImprovement = 0;
         for (int i=0; i<MAX_TABU_ITERATIONS; i++) {
             compaction();
@@ -101,8 +94,14 @@ public:
             lengthening();
             TO_PRINT & Printer::RESULTS_AFTER_LENGTHENING && Printer::printResults("After lengthening", result, oligosAll, originalDna);
             
+            vector<vector<int>> afterIterationClusters;
+            findGlobalClusters(afterIterationClusters);
+            addNewClusters(afterIterationClusters, tabuClusters);
+
             float currentEval = calculateEval(result.size(), dnaLength);
-            if (currentEval == evaluation) {
+            if (currentEval > evaluation) {
+                evaluation = currentEval;
+            } else {
                 iterationsWithNoImprovement++;
             }
             if (MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT != -1 && iterationsWithNoImprovement >= MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT) {
@@ -124,6 +123,29 @@ public:
             }
         }
         result.pop_back();  // removing temp element
+    }
+
+    void findGlobalClusters(vector<vector<int>>& clusters) {
+        result.push_back({100, 2}); // adding temp element with weight != 1
+        vector<int> newCluster;
+        for (int i=2; i<result.size(); ++i) {
+            if (result[i].weight == 1) {
+                newCluster.push_back(result[i-1].index);
+            } else if (!newCluster.empty()) {
+                newCluster.push_back(result[i-1].index);
+                clusters.push_back(newCluster);
+                newCluster.clear();
+            }
+        }
+        result.pop_back();  // removing temp element
+
+        // converting indexes to dictionary scope
+        for (vector<int>& cluster : clusters) {
+            for (int& localIndex : cluster) {
+                string localString = oligosAll[localIndex];
+                localIndex = getIndex(DICTIONARY.oligos, localString);
+            }
+        }
     }
 
     //zagęszczanie
@@ -210,7 +232,6 @@ public:
 
                     add(tabuList, result[bestIndex].index);
                     result.erase(result.begin() + bestIndex);
-                    visited.erase(visited.begin() + bestIndex);
 
                     // bestIndex now points to the next element after the best which was removed
                     if (bestIndex != size) {
@@ -242,7 +263,6 @@ public:
 
                     add(tabuList, result[cluster[0]].index);
                     result.erase(result.begin() + cluster.front(), result.begin() + cluster.back() + 1);
-                    visited.erase(visited.begin() + cluster.front(), visited.begin() + cluster.back() + 1);
 
                     bestIndex = cluster.front();
                     // bestIndex now points to the next element after the best which was removed
@@ -264,17 +284,20 @@ public:
     void lengthening() {
         Greedy greedy(
             oligosAll, locations, graph, oligosAllSize,
-            firstOligo, dnaLength, visited,
-            result, greedyResultOligos, tabuList,
+            firstOligo, dnaLength, result, tabuList,
             Greedy::TYPE_TABU_LENGTHENING);
         
         greedy.calculateResult();
         dnaLength = greedy.getResultDnaLength();
-        evaluation = calculateEval(result.size(), dnaLength);
     }
 
     vector<Pair>& getResult() {
         return result;
+    }
+
+    vector<vector<int>> getClusters() {
+        vector<vector<int>> tabuClustersVector(tabuClusters.begin(), tabuClusters.end());
+        return tabuClustersVector;
     }
 
     ~Tabu() {}

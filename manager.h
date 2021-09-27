@@ -113,7 +113,9 @@ public:
         
         structure.generateGraph();
 
-        vector<vector<int>> globalClusters;
+        structure.setDictionary();
+
+        set<vector<int>> globalClusters;
 
         for (int i=0; i<GLOBAL_MAX_ITERATIONS; ++i) {
             // oligos and locations pairs permutation
@@ -131,19 +133,19 @@ public:
 
             TO_PRINT & Printer::GRAPH && Printer::printGraph(structure.getGraph(), structure.getOligosSize());
 
-            vector<int> visited;
             vector<Pair> result;
-            vector<string> greedyResultOligos;
             vector<int> tabuList;
 
-            Greedy greedy(structure, firstOligo, visited, result, greedyResultOligos, tabuList, Greedy::TYPE_GREEDY);
+            Greedy greedy(structure, firstOligo, result, tabuList, Greedy::TYPE_GREEDY);
+            // greedy.setClusters(globalClusters);
             greedy.calculateResult();
             int resultDnaLength = greedy.getResultDnaLength();
 
             TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
 
-            Tabu tabu(dnaStr, resultDnaLength, greedy.getResultOligos(), oligos, locations, result, structure.getGraph(), greedy.getVisited(), tabuList, greedyResultOligos);
+            Tabu tabu(dnaStr, resultDnaLength, oligos, locations, result, structure.getGraph(), tabuList);
             tabu.startSearch();
+            addNewClusters(tabu.getClusters(), globalClusters);
 
             TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);
         }

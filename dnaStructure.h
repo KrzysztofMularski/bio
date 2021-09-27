@@ -307,6 +307,10 @@ public:
         return locations;
     }
 
+    void setDictionary() {
+        DICTIONARY = { oligos, locations };
+    }
+
     int getOligosSize() {
         return oligosSize;
     }

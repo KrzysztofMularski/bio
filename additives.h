@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <set>
 
 using namespace std;
 
@@ -50,6 +51,11 @@ struct OligoWithLocationWithOrder {
     int indexOrder;
 };
 
+struct Dictionary {
+    vector<string> oligos;
+    vector<Location> locations;
+} DICTIONARY;
+
 std::ostream& operator<<(std::ostream& os, const Location& loc) {
     os << "[" << loc.left << ", " << loc.right << "]";
     return os;
@@ -80,4 +86,10 @@ inline size_t calcHash(const vector<Pair>& res) {
         ss << "_" << pair.index << "_" << pair.weight;
     hash<string> str_hash;
     return str_hash(ss.str());
+}
+
+inline void addNewClusters(const vector<vector<int>>& newClusters, set<vector<int>>& clustersContainer) {
+    for (const vector<int>& cluster : newClusters) {
+        clustersContainer.insert(cluster);
+    }
 }

@@ -18,7 +18,7 @@ int main() {
         20,     // tabu list length
         100,      // tabu search max iterations
         -1,      // tabu search max iterations with no improvement, put -1 to deactivate this parameter
-        3,      // global max iterations
+        20,      // global max iterations
         toPrint // integer for printing (toPrint is set as global variable in printPatterns.h)
     );
 
