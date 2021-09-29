@@ -9,23 +9,24 @@ private:
     Printer() {}
 public:
 
-    static const int COUNTER                            = 0b00000000000000001;
-    static const int INITIALS                           = 0b00000000000000010;
-    static const int STARTING_DNA                       = 0b00000000000000100;
-    static const int ORIGINAL_OLIGOS                    = 0b00000000000001000;
-    static const int ORIGINAL_LOCATIONS                 = 0b00000000000010000;
-    static const int ORIGINAL_OLIGOS_WITH_LOCATIONS     = 0b00000000000100000;
-    static const int POSITIVE_ERRORS                    = 0b00000000001000000;
-    static const int NEGATIVE_ERRORS                    = 0b00000000010000000;
-    static const int WITH_ERRORS_OLIGOS                 = 0b00000000100000000;
-    static const int WITH_ERRORS_LOCATIONS              = 0b00000001000000000;
-    static const int WITH_ERRORS_OLIGOS_WITH_LOCATIONS  = 0b00000010000000000;
-    static const int GRAPH                              = 0b00000100000000000;
-    static const int RESULTS_WITHOUT_DNA_STRING         = 0b00001000000000000;
-    static const int RESULTS_GREEDY                     = 0b00010000000000000;
-    static const int RESULTS_AFTER_COMPACTION           = 0b00100000000000000;
-    static const int RESULTS_AFTER_LENGTHENING          = 0b01000000000000000;
-    static const int RESULTS_FINAL                      = 0b10000000000000000;
+    static const int COUNTER                            = 0b000000000000000001;
+    static const int INITIALS                           = 0b000000000000000010;
+    static const int STARTING_DNA                       = 0b000000000000000100;
+    static const int ORIGINAL_OLIGOS                    = 0b000000000000001000;
+    static const int ORIGINAL_LOCATIONS                 = 0b000000000000010000;
+    static const int ORIGINAL_OLIGOS_WITH_LOCATIONS     = 0b000000000000100000;
+    static const int POSITIVE_ERRORS                    = 0b000000000001000000;
+    static const int NEGATIVE_ERRORS                    = 0b000000000010000000;
+    static const int WITH_ERRORS_OLIGOS                 = 0b000000000100000000;
+    static const int WITH_ERRORS_LOCATIONS              = 0b000000001000000000;
+    static const int WITH_ERRORS_OLIGOS_WITH_LOCATIONS  = 0b000000010000000000;
+    static const int GRAPH                              = 0b000000100000000000;
+    static const int RESULTS_WITHOUT_DNA_STRING         = 0b000001000000000000;
+    static const int RESULTS_GREEDY                     = 0b000010000000000000;
+    static const int RESULTS_AFTER_COMPACTION           = 0b000100000000000000;
+    static const int RESULTS_AFTER_LENGTHENING          = 0b001000000000000000;
+    static const int RESULTS_FINAL                      = 0b010000000000000000;
+    static const int RESULTS_GLOBAL_FINAL               = 0b100000000000000000;
 
     static int printCounter(const int& counter) {
         if (counter == 1) {
@@ -119,9 +120,9 @@ public:
         cout << "Used oligonucleotides: " << result.size() << "/" << oligos.size() << " =~ " << (double)result.size() / (double)oligos.size() << endl;
         cout << "Global rating: " << result.size() << "/" << resultDNA.size() << " =~ " << (double)result.size() / (double)resultDNA.size() << endl;
         cout << "Result hash: " << calcHash(result) << endl;
-        if (header == "Final result") {
-            cout << endl;
-        }
     }
 
+    static int printEnd() {
+        cout << endl;
+    }
 };

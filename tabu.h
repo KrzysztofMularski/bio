@@ -141,9 +141,9 @@ public:
 
         // converting indexes to dictionary scope
         for (vector<int>& cluster : clusters) {
-            for (int& localIndex : cluster) {
-                string localString = oligosAll[localIndex];
-                localIndex = getIndex(DICTIONARY.oligos, localString);
+            for (int& index : cluster) {
+                string oligoString = oligosAll[index];
+                index = getIndex(DICTIONARY.oligos, oligoString);
             }
         }
     }
@@ -295,9 +295,8 @@ public:
         return result;
     }
 
-    vector<vector<int>> getClusters() {
-        vector<vector<int>> tabuClustersVector(tabuClusters.begin(), tabuClusters.end());
-        return tabuClustersVector;
+    void getClusters(vector<vector<int>>& tabuClustersVector) {
+        tabuClustersVector.assign(tabuClusters.begin(), tabuClusters.end());
     }
 
     ~Tabu() {}

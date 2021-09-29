@@ -22,6 +22,7 @@ struct Instance {
     int maxTabuIterations;
     int maxTabuIterationsWithNoImprovement;
     int globalMaxIterations;
+    int clusterOverlapCriterion;
     int toPrint;
 
     Instance(
@@ -38,6 +39,7 @@ struct Instance {
         int maxTabuIterations,
         int maxTabuIterationsWithNoImprovement,
         int globalMaxIterations,
+        int clusterOverlapCriterion,
         int toPrint
         ) :
         repetition(repetition),
@@ -53,7 +55,15 @@ struct Instance {
         maxTabuIterations(maxTabuIterations),
         maxTabuIterationsWithNoImprovement(maxTabuIterationsWithNoImprovement),
         globalMaxIterations(globalMaxIterations),
-        toPrint(toPrint) {}
+        clusterOverlapCriterion(clusterOverlapCriterion),
+        toPrint(toPrint) {
+            int& coc = clusterOverlapCriterion;
+            if (coc < 0) {
+                coc = 0;
+            } else if (coc > k-2) {
+                coc = k-2;
+            }
+        }
     
 };
 
@@ -87,6 +97,7 @@ public:
         MAX_TABU_ITERATIONS = i.maxTabuIterations;
         MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT = i.maxTabuIterationsWithNoImprovement;
         GLOBAL_MAX_ITERATIONS = i.globalMaxIterations;
+        CLUSTER_OVERLAP_CRITERION = i.clusterOverlapCriterion;
         TO_PRINT = i.toPrint;
 
         TO_PRINT & Printer::INITIALS && Printer::printInitials();
@@ -117,6 +128,10 @@ public:
 
         set<vector<int>> globalClusters;
 
+        vector<Pair> bestResult;
+        int bestResultSize = 0;
+        vector<string> bestOligosVersion;
+
         for (int i=0; i<GLOBAL_MAX_ITERATIONS; ++i) {
             // oligos and locations pairs permutation
             if (i == 0) {
@@ -137,17 +152,36 @@ public:
             vector<int> tabuList;
 
             Greedy greedy(structure, firstOligo, result, tabuList, Greedy::TYPE_GREEDY);
-            // greedy.setClusters(globalClusters);
+            if (i > 1)
+                greedy.setClusters(globalClusters);
             greedy.calculateResult();
             int resultDnaLength = greedy.getResultDnaLength();
 
-            TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
+            if (result.size() > bestResultSize) {
+                bestResult = result;
+                bestResultSize = result.size();
+                bestOligosVersion = oligos;
+            }
+            if (i == 0) // temp
+                TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
 
             Tabu tabu(dnaStr, resultDnaLength, oligos, locations, result, structure.getGraph(), tabuList);
             tabu.startSearch();
-            addNewClusters(tabu.getClusters(), globalClusters);
+            vector<vector<int>> tabuClusters;
+            tabu.getClusters(tabuClusters);
+            addNewClusters(tabuClusters, globalClusters);
 
+            if (result.size() > bestResultSize) {
+                bestResult = result;
+                bestResultSize = result.size();
+                bestOligosVersion = oligos;
+            }
+            
             TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);
         }
+
+        TO_PRINT & Printer::RESULTS_GLOBAL_FINAL && Printer::printResults("Final global result", bestResult, bestOligosVersion, dnaStr);
+
+        Printer::printEnd();
     }
 };

@@ -11,8 +11,8 @@ using namespace std;
 
 enum class Random_Type { LINEAR, GAUSSIAN };
 
-int n;  // DNA length
-int k;  // oligonucleotide length
+int n;
+int k;
 float POSITIVE_ERRORS_PERCENTAGE;
 float NEGATIVE_ERRORS_PERCENTAGE;
 int GREEDY_DEPTH;
@@ -23,6 +23,7 @@ int TABU_LIST_LENGTH;
 int MAX_TABU_ITERATIONS;
 int MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT;
 int GLOBAL_MAX_ITERATIONS;
+int CLUSTER_OVERLAP_CRITERION;
 int TO_PRINT;
 
 struct Pair {
@@ -73,10 +74,8 @@ inline void add(vector<int>& tabuList, int element) {
 }
 
 template <typename Type>
-int getIndex(const vector<Type>& v, const Type& t)
-{
+int getIndex(const vector<Type>& v, const Type& t) {
     auto it = find(v.begin(), v.end(), t);
-
     return it != v.end() ? it - v.begin() : -1; // if found then return index
 }
 

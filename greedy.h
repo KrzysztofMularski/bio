@@ -10,11 +10,12 @@ private:
     int oligosSize;
     string firstOligo;
     int currentDNAlength;
-
     vector<Pair>& greedyResult;
-
     vector<int>& tabuList;
+    vector<vector<int>> prevClusters;
+    vector<Location> prevClustersLocations;
     int greedyType; // 0-greedy, 1-tabu(lengthening)
+
 public:
     Greedy(
         DnaStructure& structure,
@@ -77,8 +78,40 @@ public:
                 int oligosNumber = 0;
                 if (GREEDY_DEPTH > 1)
                     pair = findBest(index, 1, 0, oligosNumber);
-                else
-                    pair = findBestShallow(index);
+                else {
+                    int prevClustersSize = prevClusters.size();
+                    if (prevClustersSize) {
+                        int currentlyAvailableIndex = currentDNAlength - k + 1;
+                        vector<int> correctClusterIndexes;
+                        correctClusterIndexes.reserve(prevClustersSize);
+                        for (int i=0; i<prevClustersSize; ++i) {
+                            if (locationFits(prevClustersLocations[i], currentlyAvailableIndex)) {
+                                correctClusterIndexes.push_back(i);
+                            }
+                        }
+
+                        int correctClusterIndexesSize = correctClusterIndexes.size();
+
+                        if (correctClusterIndexesSize == 0) {
+                            pair = findBestShallow(index);
+                        } else if (correctClusterIndexesSize == 1) {
+                            index = applyClusterToResult(prevClusters[correctClusterIndexes[0]], index);
+                            if (currentDNAlength >= n) {
+                                break;
+                            }
+                            continue;
+                        } else {
+                            //long term memory?
+                            index = applyClusterToResult(prevClusters[correctClusterIndexes[0]], index);
+                            if (currentDNAlength >= n) {
+                                break;
+                            }
+                            continue;
+                        }
+                    } else {
+                        pair = findBestShallow(index);
+                    }
+                }
             } else {
                 pair = findBestTabu(index);
             }
@@ -93,6 +126,38 @@ public:
             
             index = pair.index;
         }
+    }
+
+    int applyClusterToResult(const vector<int>& cluster, const int lastIndex) {
+        int weight = graph[lastIndex][cluster[0]][0];
+        greedyResult.push_back( { cluster[0], weight } );
+        currentDNAlength += weight;
+        for (int i=1; i<cluster.size(); ++i) {
+            greedyResult.push_back( { cluster[i], 1 } );
+            currentDNAlength += 1;
+            if (currentDNAlength >= n)
+                return -1;
+        }
+        return cluster.back();
+    }
+
+    bool locationFits(const Location& loc, const int& currentIndex) {
+        int leftIndex = currentIndex;
+        int rightIndex = currentIndex + CLUSTER_OVERLAP_CRITERION;
+        if (rightIndex < loc.left || loc.right < leftIndex)
+            return false;
+        return true;
+    }
+
+    bool positionsInClusterCorrect(const vector<int>& cluster, int currentIndex) {
+        int predictedIndex = currentIndex + 1;
+        for (const int& index : cluster) {
+            if (locationNotFit(predictedIndex, locations[index])) {
+                return false;
+            }
+            ++predictedIndex;
+        }
+        return true;
     }
 
     Pair findBest(int index, int depth, int newLength, int& prevOligosNumber) {
@@ -192,6 +257,41 @@ public:
 
     int getResultDnaLength() const {
         return currentDNAlength;
+    }
+
+    void setClusters(const set<vector<int>> globalClusters) {
+        prevClusters.assign(globalClusters.begin(), globalClusters.end());
+        // converting indexes to local scope
+        for (vector<int>& cluster : prevClusters) {
+            for (int& index : cluster) {
+                string oligoString = DICTIONARY.oligos[index];
+                index = getIndex(oligos, oligoString);
+            }
+        }
+        sort(prevClusters.begin(), prevClusters.end(), [] (const vector<int>& v1, const vector<int>& v2) {
+            return (v1.size() > v2.size());
+        });
+
+        // calculating cluster locations
+        prevClustersLocations.clear();
+        for (const vector<int>& cluster : prevClusters) {
+            prevClustersLocations.push_back(getClusterPossibleLocation(cluster));
+        }
+    }
+
+    Location getClusterPossibleLocation(const vector<int>& cluster) {
+        int counter = 0;
+        const int clusterSize = cluster.size();
+        vector<int> lefts(clusterSize);
+        vector<int> rights(clusterSize);
+        for (const int& index : cluster) {
+            lefts[counter] = locations[index].left - counter;
+            rights[counter] = locations[index].right - counter;
+            ++counter;
+        }
+        int maxLeft = *max_element(lefts.begin(), lefts.end());
+        int minRight = *min_element(rights.begin(), rights.end());
+        return { maxLeft, minRight };
     }
 
 };
