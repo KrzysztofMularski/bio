@@ -7,6 +7,7 @@
 #include "finals.h"
 #include "printer.h"
 #include "additives.h"
+#include "fileManager.h"
 
 struct Instance {
     int repetition;
@@ -19,11 +20,14 @@ struct Instance {
     int greedyDepth;
     Random_Type locationRandomType; // Linear or Gaussian
     int tabuListLength;
+    int tabuListClustersLength;
     int maxTabuIterations;
     int maxTabuIterationsWithNoImprovement;
     int globalMaxIterations;
     int clusterOverlapCriterion;
     int toPrint;
+    string filename;
+    string compactFilename;
 
     Instance(
         int repetition,
@@ -36,11 +40,14 @@ struct Instance {
         int greedyDepth,
         Random_Type locationRandomType,
         int tabuListLength,
+        int tabuListClustersLength,
         int maxTabuIterations,
         int maxTabuIterationsWithNoImprovement,
         int globalMaxIterations,
         int clusterOverlapCriterion,
-        int toPrint
+        int toPrint,
+        string filename,
+        string compactFilename
         ) :
         repetition(repetition),
         dnaLength(dnaLength),
@@ -52,11 +59,14 @@ struct Instance {
         greedyDepth(greedyDepth),
         locationRandomType(locationRandomType),
         tabuListLength(tabuListLength),
+        tabuListClustersLength(tabuListClustersLength),
         maxTabuIterations(maxTabuIterations),
         maxTabuIterationsWithNoImprovement(maxTabuIterationsWithNoImprovement),
         globalMaxIterations(globalMaxIterations),
         clusterOverlapCriterion(clusterOverlapCriterion),
-        toPrint(toPrint) {
+        toPrint(toPrint),
+        filename(filename),
+        compactFilename(compactFilename) {
             int& coc = clusterOverlapCriterion;
             if (coc < 0) {
                 coc = 0;
@@ -84,27 +94,51 @@ public:
         }
     }
 
-    void run(Instance i) {
+    void run(Instance ins) {
 
-        n = i.dnaLength;
-        k = i.oligoLength;
-        POSITIVE_ERRORS_PERCENTAGE = i.positiveErrorPercentage;
-        NEGATIVE_ERRORS_PERCENTAGE = i.negativeErrorPercentage;
-        GREEDY_DEPTH = i.greedyDepth;
-        LOCATION_RANGE = i.locationRange;
-        LOCATION_RANDOM_TYPE = i.locationRandomType;
-        TABU_LIST_LENGTH = i.tabuListLength;
-        MAX_TABU_ITERATIONS = i.maxTabuIterations;
-        MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT = i.maxTabuIterationsWithNoImprovement;
-        GLOBAL_MAX_ITERATIONS = i.globalMaxIterations;
-        CLUSTER_OVERLAP_CRITERION = i.clusterOverlapCriterion;
-        TO_PRINT = i.toPrint;
+        clock_t start = clock();
+
+        n = ins.dnaLength;
+        k = ins.oligoLength;
+        POSITIVE_ERRORS_PERCENTAGE = ins.positiveErrorPercentage;
+        NEGATIVE_ERRORS_PERCENTAGE = ins.negativeErrorPercentage;
+        LOCATION_RANGE = ins.locationRange;
+        GREEDY_DEPTH = ins.greedyDepth;
+        LOCATION_RANDOM_TYPE = ins.locationRandomType;
+        TABU_LIST_LENGTH = ins.tabuListLength;
+        TABU_LIST_CLUSTERS_LENGTH = ins.tabuListClustersLength;
+        MAX_TABU_ITERATIONS = ins.maxTabuIterations;
+        MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT = ins.maxTabuIterationsWithNoImprovement;
+        GLOBAL_MAX_ITERATIONS = ins.globalMaxIterations;
+        CLUSTER_OVERLAP_CRITERION = ins.clusterOverlapCriterion;
+        TO_PRINT = ins.toPrint;
+
+        clock_t startFile = clock();
+
+        FileManager file(ins.filename);
+        file.write(INSTANCE_COUNTER);
+        file.write(ins);
+        FileManager fileCompact(ins.compactFilename);
+        if (INSTANCE_COUNTER == 1)
+            fileCompact.writeHeaders();
+        fileCompact.writeCompact(INSTANCE_COUNTER);
+        fileCompact.writeCompact(ins);
+
+        clock_t endFile = clock();
+        clock_t fileWritingDelay = endFile - startFile;
 
         TO_PRINT & Printer::INITIALS && Printer::printInitials();
 
-        Dna dna(i.dna);
+        Dna dna(ins.dna);
 
         string dnaStr = dna.getDna();
+
+        startFile = clock();
+        file.write(dnaStr, !ins.dna.size());
+        fileCompact.writeCompact(dnaStr, !ins.dna.size());
+        endFile = clock();
+        fileWritingDelay += endFile - startFile;
+
         vector<string>& oligos = dna.getOligos();
         vector<int>& oligosAsNumbers = dna.getOligosAsNumbers();
         string firstOligo = dna.getFirst();
@@ -115,7 +149,7 @@ public:
         TO_PRINT & Printer::ORIGINAL_LOCATIONS && Printer::printLocations("Original oligonucleotides locations", locations);
         TO_PRINT & Printer::ORIGINAL_OLIGOS_WITH_LOCATIONS && Printer::printOligosWithLocations("Original oligonucleotides with locations", oligos, locations);
 
-        DnaStructure structure(oligos, oligosAsNumbers, locations);
+        DnaStructure structure(oligos, oligosAsNumbers, locations, firstOligo);
         structure.generateErrors();
 
         TO_PRINT & Printer::WITH_ERRORS_OLIGOS && Printer::printOligos("Oligonucleotides with errors", oligos);
@@ -129,8 +163,10 @@ public:
         set<vector<int>> globalClusters;
 
         vector<Pair> bestResult;
-        int bestResultSize = 0;
+        float bestEvaluation = 0;
         vector<string> bestOligosVersion;
+
+        vector<size_t> tabuListClusters;
 
         for (int i=0; i<GLOBAL_MAX_ITERATIONS; ++i) {
             // oligos and locations pairs permutation
@@ -151,29 +187,43 @@ public:
             vector<Pair> result;
             vector<int> tabuList;
 
-            Greedy greedy(structure, firstOligo, result, tabuList, Greedy::TYPE_GREEDY);
+            Greedy greedy(structure, firstOligo, result, tabuList, tabuListClusters, Greedy::TYPE_GREEDY);
             if (i > 1)
                 greedy.setClusters(globalClusters);
             greedy.calculateResult();
+
             int resultDnaLength = greedy.getResultDnaLength();
 
-            if (result.size() > bestResultSize) {
+            float currentEvaluation = (float)result.size() / (float)makeDNA(result, oligos).size();
+
+            if (currentEvaluation > bestEvaluation) {
                 bestResult = result;
-                bestResultSize = result.size();
+                bestEvaluation = currentEvaluation;
                 bestOligosVersion = oligos;
             }
-            if (i == 0) // temp
-                TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
+            tabuListClusters = greedy.getTabuListClusters();
+            
+            TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
+
+            if (i == 0) {
+                startFile = clock();
+                file.write("First result (first greedy)", result, oligos, dnaStr);
+                fileCompact.writeCompact(result, oligos, dnaStr);
+                endFile = clock();
+                fileWritingDelay += endFile - startFile;
+            }
 
             Tabu tabu(dnaStr, resultDnaLength, oligos, locations, result, structure.getGraph(), tabuList);
-            tabu.startSearch();
+            tabu.startSearch(bestEvaluation, bestResult, bestOligosVersion);
             vector<vector<int>> tabuClusters;
             tabu.getClusters(tabuClusters);
             addNewClusters(tabuClusters, globalClusters);
 
-            if (result.size() > bestResultSize) {
+            currentEvaluation = (float)result.size() / (float)makeDNA(result, oligos).size();
+
+            if (currentEvaluation > bestEvaluation) {
                 bestResult = result;
-                bestResultSize = result.size();
+                bestEvaluation = currentEvaluation;
                 bestOligosVersion = oligos;
             }
             
@@ -182,6 +232,19 @@ public:
 
         TO_PRINT & Printer::RESULTS_GLOBAL_FINAL && Printer::printResults("Final global result", bestResult, bestOligosVersion, dnaStr);
 
-        Printer::printEnd();
+        clock_t end = clock();
+
+        startFile = clock();
+        file.write("Final result (best)", bestResult, bestOligosVersion, dnaStr);
+        fileCompact.writeCompact(bestResult, bestOligosVersion, dnaStr);
+        endFile = clock();
+        fileWritingDelay += endFile - startFile;
+
+        clock_t finalTime = end - start - fileWritingDelay;
+
+        file.write(finalTime);
+        fileCompact.writeCompact(finalTime);
+
+        Printer::printEnd(finalTime);
     }
 };

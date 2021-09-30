@@ -12,6 +12,7 @@ private:
     int currentDNAlength;
     vector<Pair>& greedyResult;
     vector<int>& tabuList;
+    vector<size_t> tabuListClusters;
     vector<vector<int>> prevClusters;
     vector<Location> prevClustersLocations;
     int greedyType; // 0-greedy, 1-tabu(lengthening)
@@ -22,6 +23,7 @@ public:
         string& firstOligo,
         vector<Pair>& greedyResult,
         vector<int>& tabuList,
+        vector<size_t> tabuListClusters,
         int greedyType = 0
         ) :
         oligos(structure.getOligos()),
@@ -32,6 +34,7 @@ public:
         currentDNAlength(0),
         greedyResult(greedyResult),
         tabuList(tabuList),
+        tabuListClusters(tabuListClusters),
         greedyType(greedyType) {}
     
     Greedy(
@@ -72,20 +75,27 @@ public:
         } else {
             index = greedyResult.back().index;
         }
-
+        
         while(true) {
             if (greedyType == Greedy::TYPE_GREEDY) {
                 int oligosNumber = 0;
                 if (GREEDY_DEPTH > 1)
                     pair = findBest(index, 1, 0, oligosNumber);
                 else {
+
                     int prevClustersSize = prevClusters.size();
                     if (prevClustersSize) {
                         int currentlyAvailableIndex = currentDNAlength - k + 1;
                         vector<int> correctClusterIndexes;
                         correctClusterIndexes.reserve(prevClustersSize);
+                        string lastOligoString = oligos[greedyResult.back().index];
                         for (int i=0; i<prevClustersSize; ++i) {
-                            if (locationFits(prevClustersLocations[i], currentlyAvailableIndex)) {
+                            if (locationFits(
+                                    prevClustersLocations[i],
+                                    currentlyAvailableIndex,
+                                    lastOligoString,
+                                    oligos[prevClusters[i][0]]
+                                )) {
                                 correctClusterIndexes.push_back(i);
                             }
                         }
@@ -96,17 +106,31 @@ public:
                             pair = findBestShallow(index);
                         } else if (correctClusterIndexesSize == 1) {
                             index = applyClusterToResult(prevClusters[correctClusterIndexes[0]], index);
-                            if (currentDNAlength >= n) {
+                            if (currentDNAlength >= n || index == -1) {
                                 break;
                             }
                             continue;
                         } else {
-                            //long term memory?
-                            index = applyClusterToResult(prevClusters[correctClusterIndexes[0]], index);
-                            if (currentDNAlength >= n) {
-                                break;
+                            bool clusterApplied = false;
+                            for (const int& correctClusterIndex : correctClusterIndexes) {
+                                size_t clusterHash = calcHashCluster(prevClusters[correctClusterIndex], oligos);
+                                auto itTabuClusters = find(tabuListClusters.begin(), tabuListClusters.end(), clusterHash);
+                                if (itTabuClusters == tabuListClusters.end()) {
+                                    index = applyClusterToResult(prevClusters[correctClusterIndex], index);
+                                    clusterApplied = true;
+                                    addCluster(tabuListClusters, clusterHash);
+                                    break;
+                                }
                             }
-                            continue;
+                            if (!clusterApplied) {
+                                pair = findBestShallow(index);
+                            } else {
+                                if (currentDNAlength >= n || index == -1) {
+                                    break;
+                                }
+                                continue;
+                            }
+                            
                         }
                     } else {
                         pair = findBestShallow(index);
@@ -128,23 +152,39 @@ public:
         }
     }
 
+    vector<Pair> filteredResults() {
+        vector<Pair> elems;
+        for(const Pair& elem : greedyResult) {
+            if(elem.weight==-1) {
+                elems.push_back(elem);
+            }
+        }
+        return elems;
+    }
+
     int applyClusterToResult(const vector<int>& cluster, const int lastIndex) {
         int weight = graph[lastIndex][cluster[0]][0];
+        if (currentDNAlength + weight >= n)
+            return -1;
         greedyResult.push_back( { cluster[0], weight } );
         currentDNAlength += weight;
         for (int i=1; i<cluster.size(); ++i) {
+            if (currentDNAlength + 1 >= n)
+                return -1;
             greedyResult.push_back( { cluster[i], 1 } );
             currentDNAlength += 1;
-            if (currentDNAlength >= n)
-                return -1;
+            
         }
         return cluster.back();
     }
 
-    bool locationFits(const Location& loc, const int& currentIndex) {
+    bool locationFits(const Location& loc, const int& currentIndex, const string& lastOligo, const string& clusterFirstOligo) {
         int leftIndex = currentIndex;
         int rightIndex = currentIndex + CLUSTER_OVERLAP_CRITERION;
         if (rightIndex < loc.left || loc.right < leftIndex)
+            return false;
+        vector<int> weights = DnaStructure::calcOligosWeights(lastOligo, clusterFirstOligo);
+        if (weights[0] > CLUSTER_OVERLAP_CRITERION + 1)
             return false;
         return true;
     }
@@ -232,7 +272,7 @@ public:
         for(int i = 0; i < oligosSize; i++)
         {
             auto itTabu = find(tabuList.begin(), tabuList.end(), i);
-            if(itTabu == tabuList.end()){
+            if(itTabu == tabuList.end()) {
                 bestOligoWeight = graph[index][i][0];
                 int currentTempLength = currentDNAlength + bestOligoWeight;
                 if (currentTempLength > n)
@@ -292,6 +332,10 @@ public:
         int maxLeft = *max_element(lefts.begin(), lefts.end());
         int minRight = *min_element(rights.begin(), rights.end());
         return { maxLeft, minRight };
+    }
+
+    vector<size_t> getTabuListClusters() {
+        return tabuListClusters;
     }
 
 };

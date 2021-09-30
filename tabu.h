@@ -84,7 +84,7 @@ public:
         }
     }
 
-    void startSearch() {
+    void startSearch(float& bestEvaluation, vector<Pair>& bestResult, vector<string>& bestOligosVersion) {
 
         int iterationsWithNoImprovement = 0;
         for (int i=0; i<MAX_TABU_ITERATIONS; i++) {
@@ -97,6 +97,14 @@ public:
             vector<vector<int>> afterIterationClusters;
             findGlobalClusters(afterIterationClusters);
             addNewClusters(afterIterationClusters, tabuClusters);
+
+            float currentEvaluation = (float)result.size() / (float)makeDNA(result, oligosAll).size();
+
+            if (currentEvaluation > bestEvaluation) {
+                bestResult = result;
+                bestEvaluation = currentEvaluation;
+                bestOligosVersion = oligosAll;
+            }
 
             float currentEval = calculateEval(result.size(), dnaLength);
             if (currentEval > evaluation) {

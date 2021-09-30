@@ -12,15 +12,18 @@ private:
     int oligosSize;
     vector<int>** graph;
     Locator locator;
+    string firstOligo;
 public:
     DnaStructure(
         vector<string>& oligos,
         vector<int>& oligosAsNumbers,
-        vector<Location>& locations
+        vector<Location>& locations,
+        string firstOligo
     ) :
         oligos(oligos),
         oligosAsNumbers(oligosAsNumbers),
-        locations(locations)
+        locations(locations),
+        firstOligo(firstOligo)
     {
         oligosSize = oligos.size();
     }
@@ -135,7 +138,7 @@ public:
         return;
     }
 
-    void generateNegativeErrorsIndexes(vector<int>& negErrorsIndexes, const int& negErrorsNumber) {
+    void generateNegativeErrorsIndexes(vector<int>& negErrorsIndexes, const int& negErrorsNumber, const int firstOligoIndex) {
         if (negErrorsNumber == 0) {
             return;
         }
@@ -145,6 +148,13 @@ public:
             for (int i=0; i<oligosSize; ++i) {
                 negErrorsIndexes[i] = i;
             }
+            auto it = find(negErrorsIndexes.begin(), negErrorsIndexes.end(), firstOligoIndex);
+            if (it == negErrorsIndexes.end()) {
+                // cannot happen
+            } else {
+                negErrorsIndexes.erase(it);
+            }
+            
             return;
         }
         int negErrorsCurrentIndex = 0;
@@ -152,6 +162,9 @@ public:
         int wrongOligoCounter = 0;
         while (negErrorsLeft > 0) {
             int randomIndex = rand() % oligosSize;
+            if (randomIndex == firstOligoIndex) {
+                continue;
+            }
             int indexInNegErrorsIndexes = getIndex(negErrorsIndexes, randomIndex);
             if (indexInNegErrorsIndexes == -1) {
                 --negErrorsLeft;
@@ -174,8 +187,14 @@ public:
         for (int i=0; i<oligosSize; ++i) {
             allOligosIndexes[i] = i;
         }
+        auto it = find(allOligosIndexes.begin(), negErrorsIndexes.end(), firstOligoIndex);
+        if (it == negErrorsIndexes.end()) {
+            // cannot happen
+        } else {
+            allOligosIndexes.erase(it);
+        }
         while (negErrorsLeft > 0) {
-            int randomIndex = rand() % allOligosIndexesSize;
+            int randomIndex = rand() % allOligosIndexes.size();
             negErrorsIndexes[negErrorsCurrentIndex++] = allOligosIndexes[randomIndex];
             allOligosIndexes.erase(allOligosIndexes.begin() + randomIndex);
             --negErrorsLeft;
@@ -231,7 +250,9 @@ public:
         TO_PRINT & Printer::POSITIVE_ERRORS && Printer::printOligos("Generated oligonucleotides as positive errors (" + to_string(posErrors.size()) + ")", posErrors, "No positive errors");
 
         vector<int> negErrorsIndexes(negErrorsNumber);
-        generateNegativeErrorsIndexes(negErrorsIndexes, negErrorsNumber);
+        const int firstOligoIndex = getIndex(oligos, firstOligo);
+        generateNegativeErrorsIndexes(negErrorsIndexes, negErrorsNumber, firstOligoIndex);
+
         vec_sort(negErrorsIndexes);
         TO_PRINT & Printer::NEGATIVE_ERRORS && Printer::printNegativeErrors("Chosen oligonucleotides as negative errors (" + to_string(negErrorsIndexes.size()) + ")", negErrorsIndexes, oligos, "No negative errors");
 

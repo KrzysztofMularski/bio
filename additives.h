@@ -15,11 +15,12 @@ int n;
 int k;
 float POSITIVE_ERRORS_PERCENTAGE;
 float NEGATIVE_ERRORS_PERCENTAGE;
-int GREEDY_DEPTH;
 int LOCATION_RANGE;
+int GREEDY_DEPTH;
 Random_Type LOCATION_RANDOM_TYPE;
-int INSTANCE_COUNTER;
+int INSTANCE_COUNTER = 1;
 int TABU_LIST_LENGTH;
+int TABU_LIST_CLUSTERS_LENGTH;
 int MAX_TABU_ITERATIONS;
 int MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT;
 int GLOBAL_MAX_ITERATIONS;
@@ -73,16 +74,35 @@ inline void add(vector<int>& tabuList, int element) {
     }
 }
 
+inline void addCluster(vector<size_t>& tabuListClusters, size_t clusterHash) {
+    tabuListClusters.push_back(clusterHash);
+    if (tabuListClusters.size() > TABU_LIST_CLUSTERS_LENGTH) {
+        tabuListClusters.erase(tabuListClusters.begin());
+    }
+}
+
 template <typename Type>
 int getIndex(const vector<Type>& v, const Type& t) {
     auto it = find(v.begin(), v.end(), t);
     return it != v.end() ? it - v.begin() : -1; // if found then return index
 }
 
-inline size_t calcHash(const vector<Pair>& res) {
+inline size_t calcHash(const vector<Pair>& res, const vector<string>& oligos) {
     stringstream ss;
     for (const Pair& pair : res)
-        ss << "_" << pair.index << "_" << pair.weight;
+        ss << "_" << oligos[pair.index] << "_" << pair.weight;
+    hash<string> str_hash;
+    return str_hash(ss.str());
+}
+
+inline size_t calcHashCluster(const vector<int>& cluster, const vector<string>& oligos) {
+    stringstream ss;
+    for (const int& index : cluster) {
+        // finding global index first
+        string oligo = oligos[index];
+        const int globalIndex = getIndex(DICTIONARY.oligos, oligo);
+        ss << globalIndex << "_";
+    }
     hash<string> str_hash;
     return str_hash(ss.str());
 }

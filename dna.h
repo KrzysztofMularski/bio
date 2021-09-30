@@ -34,7 +34,6 @@ public:
 
         // generating (m = n - k + 1) oligonucleotides of length k
         int m = n - k + 1;
-        // dna = "CCCGA"; // temp
         vector<OligoWithPosition> oligoWithPosition(m);
         for (int i=0; i<m; i++) {
             string oligo = dna.substr(i, k);

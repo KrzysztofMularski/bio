@@ -36,8 +36,21 @@ public:
     }
 
     static int printInitials() {
-        cout << "\n" << setw(2) << left << n << " - DNA length" << endl;
-        cout << setw(2) << left << k << " - Oligonucleotide length" << endl;
+        cout << endl;
+        cout << setw(3) << left << n << " - DNA length" << endl;
+        cout << setw(3) << left << k << " - Oligonucleotide length" << endl;
+        cout << setw(3) << left << POSITIVE_ERRORS_PERCENTAGE << " - Positive error percentage" << endl;
+        cout << setw(3) << left << NEGATIVE_ERRORS_PERCENTAGE << " - Negative error percentage" << endl;
+        cout << setw(3) << left << LOCATION_RANGE << " - Location range" << endl;
+        string randomTypeString = (LOCATION_RANDOM_TYPE == Random_Type::LINEAR) ? "Linear" : "Gaussian";
+        cout << setw(3) << left << randomTypeString << " random type for generating location interval" << endl;
+        cout << setw(3) << left << GREEDY_DEPTH << " - Greedy depth" << endl;
+        cout << setw(3) << left << TABU_LIST_LENGTH << " - Tabu list length" << endl;
+        cout << setw(3) << left << TABU_LIST_CLUSTERS_LENGTH << " - Tabu list for clusters length" << endl;
+        cout << setw(3) << left << MAX_TABU_ITERATIONS << " - Tabu max iterations" << endl;
+        cout << setw(3) << left << MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT << " - Tabu max iterations with no improvement" << endl;
+        cout << setw(3) << left << GLOBAL_MAX_ITERATIONS << " - Global max iterations" << endl;
+        cout << setw(3) << left << CLUSTER_OVERLAP_CRITERION << " - Cluster overlap criterion" << endl;
     }
 
     static int print(const char* arr) {
@@ -119,10 +132,11 @@ public:
         cout << "Result DNA length: " << resultDNA.size() << "/" << dnaStr.size() << " =~ " << (double)resultDNA.size() / (double)dnaStr.size() << endl;
         cout << "Used oligonucleotides: " << result.size() << "/" << oligos.size() << " =~ " << (double)result.size() / (double)oligos.size() << endl;
         cout << "Global rating: " << result.size() << "/" << resultDNA.size() << " =~ " << (double)result.size() / (double)resultDNA.size() << endl;
-        cout << "Result hash: " << calcHash(result) << endl;
+        cout << "Result hash: " << calcHash(result, oligos) << endl;
     }
 
-    static int printEnd() {
+    static int printEnd(clock_t time) {
+        cout << "\nInstance took " << (float)time / CLOCKS_PER_SEC << " seconds to complete" << endl;
         cout << endl;
     }
 };
