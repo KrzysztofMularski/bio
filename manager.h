@@ -74,18 +74,27 @@ struct Instance {
                 coc = k-2;
             }
         }
-    
 };
 
 class Manager {
 private:
     vector<Instance> instances;
+    int instancesSize;
+    int maxCyclesNumber;
 public:
-    Manager(vector<Instance> instances) : instances(instances) {}
+    Manager(vector<Instance> instances) : instances(instances) {
+        maxCyclesNumber = 0;
+        instancesSize = 0;
+        for (auto& instance : instances) {
+            maxCyclesNumber += instance.repetition * instance.globalMaxIterations;
+            instancesSize += instance.repetition;
+        }
+    }
     ~Manager() {}
 
     void runAll() {
-        for (auto instance : instances) {
+        
+        for (auto& instance : instances) {
             for (int i=0; i<instance.repetition; i++) {
                 instance.toPrint & Printer::COUNTER && Printer::printCounter(INSTANCE_COUNTER);
                 run(instance);
@@ -169,6 +178,9 @@ public:
         vector<size_t> tabuListClusters;
 
         for (int i=0; i<GLOBAL_MAX_ITERATIONS; ++i) {
+
+            TO_PRINT & Printer::LOADING && Printer::printLoading(instancesSize, maxCyclesNumber);
+
             // oligos and locations pairs permutation
             if (i == 0) {
                 // oligos and locations pairs sorted alphabetically (default)
@@ -228,7 +240,11 @@ public:
             }
             
             TO_PRINT & Printer::RESULTS_FINAL && Printer::printResults("Final result", tabu.getResult(), oligos, dnaStr);
+            
+            ++CURRENT_CYCLES_NUMBER;
         }
+
+        TO_PRINT & Printer::LOADING && Printer::printLoading(instancesSize, maxCyclesNumber);
 
         TO_PRINT & Printer::RESULTS_GLOBAL_FINAL && Printer::printResults("Final global result", bestResult, bestOligosVersion, dnaStr);
 
@@ -245,6 +261,6 @@ public:
         file.write(finalTime);
         fileCompact.writeCompact(finalTime);
 
-        Printer::printEnd(finalTime);
+        TO_PRINT & Printer::END_TIME && Printer::printEnd(finalTime);
     }
 };
