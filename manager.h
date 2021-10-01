@@ -244,7 +244,7 @@ public:
             ++CURRENT_CYCLES_NUMBER;
         }
 
-        TO_PRINT & Printer::LOADING && Printer::printLoading(instancesSize, maxCyclesNumber, true);
+        TO_PRINT & Printer::LOADING && Printer::printLoading(instancesSize, maxCyclesNumber);
 
         TO_PRINT & Printer::RESULTS_GLOBAL_FINAL && Printer::printResults("Final global result", bestResult, bestOligosVersion, dnaStr);
 
