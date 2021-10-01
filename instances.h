@@ -33,6 +33,8 @@ const string DEFAULT_FILENAME = "result.txt";
 const string DEFAULT_COMPACT_FILENAME = "resultsCompact.csv";
 
 vector<Instance> instances = {
-    { 3, 800, 8, "", 10.0, 10.0, 300, 1, Random_Type::LINEAR, 20, 3, 10, 5, 12, 3, toPrint, DEFAULT_FILENAME, DEFAULT_COMPACT_FILENAME },
-    { 3, 800, 8, "", 10.0, 10.0, 300, 1, Random_Type::LINEAR, 20, 3, 10, 5, 12, 3, toPrint, DEFAULT_FILENAME, DEFAULT_COMPACT_FILENAME },
+//    rep  n    k  dna pos  neg  loc_range depth  random_type          tListLen tClListLen tabuMaxIter tabuMaxIterNoImpr glMaxIter clusCrit
+    // { 1,   400, 8, "", 2.0, 2.0, 100,      1,     Random_Type::LINEAR, 20,      3,         1,          -1,               1 ,       3,       toPrint, DEFAULT_FILENAME, DEFAULT_COMPACT_FILENAME },
+    // { 1,   400, 8, "", 2.0, 2.0, 100,      2,     Random_Type::LINEAR, 20,      3,         1,          -1,               1 ,       3,       toPrint, DEFAULT_FILENAME, DEFAULT_COMPACT_FILENAME },
+    { 1,   400, 8, "", 2.0, 2.0, 100,      3,     Random_Type::LINEAR, 20,      3,         1,          -1,               1 ,       3,       toPrint, DEFAULT_FILENAME, DEFAULT_COMPACT_FILENAME },
 };

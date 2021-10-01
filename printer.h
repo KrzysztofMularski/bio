@@ -137,10 +137,13 @@ public:
         cout << "Result hash: " << calcHash(result, oligos) << endl;
     }
 
-    static int printLoading(const int instancesSize, const int maxCyclesNumber) {
+    static int printLoading(const int instancesSize, const int maxCyclesNumber, const int isEnd = false) {
         cout << "                              \r";
         cout << " Instance: " << INSTANCE_COUNTER << "/" << instancesSize << " ( " << (float)CURRENT_CYCLES_NUMBER / (float)maxCyclesNumber * 100 << "% )\r";
         fflush(stdout);
+        if (isEnd) {
+            cout << endl;
+        }
     }
 
     static int printEnd(clock_t time) {
