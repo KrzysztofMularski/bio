@@ -2,3 +2,5 @@
 .vscode
 a
 main
+*.txt
+*.csv
