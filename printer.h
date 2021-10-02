@@ -138,7 +138,7 @@ public:
     }
 
     static int printLoading(const int instancesSize, const int maxCyclesNumber) {
-        cout << "                              \r";
+        cout << "                                      \r";
         cout << " Instance: " << INSTANCE_COUNTER << "/" << instancesSize << " ( " << (float)CURRENT_CYCLES_NUMBER / (float)maxCyclesNumber * 100 << "% )\r";
         fflush(stdout);
         if (CURRENT_CYCLES_NUMBER == maxCyclesNumber) {

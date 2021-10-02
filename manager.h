@@ -105,6 +105,8 @@ public:
 
     void run(Instance ins) {
 
+        srand(time(NULL));
+
         clock_t start = clock();
 
         n = ins.dnaLength;
