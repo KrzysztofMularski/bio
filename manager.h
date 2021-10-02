@@ -105,8 +105,6 @@ public:
 
     void run(Instance ins) {
 
-        srand(time(NULL));
-
         clock_t start = clock();
 
         n = ins.dnaLength;
@@ -130,8 +128,10 @@ public:
         file.write(INSTANCE_COUNTER);
         file.write(ins);
         FileManager fileCompact(ins.compactFilename);
-        if (INSTANCE_COUNTER == 1)
-            fileCompact.writeHeaders();
+        if (INSTANCE_COUNTER == 1) {
+            // fileCompact.writeHeaders();
+            fileCompact.writeHeadersShort();
+        }
         fileCompact.writeCompact(INSTANCE_COUNTER);
         fileCompact.writeCompact(ins);
 
@@ -178,6 +178,13 @@ public:
         vector<string> bestOligosVersion;
 
         vector<size_t> tabuListClusters;
+
+        float idealRating = (float)(n-k+1) / (float)(n);
+        startFile = clock();
+        file.write(idealRating);
+        fileCompact.writeCompact(idealRating);
+        endFile = clock();
+        fileWritingDelay += endFile - startFile;
 
         for (int i=0; i<GLOBAL_MAX_ITERATIONS; ++i) {
 

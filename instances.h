@@ -53,5 +53,5 @@ const int clusCrit = 2;
 
 vector<Instance> instances = {
 //    rep  n     k  dna     pos  neg  loc_range depth  random_type  tListLen  tClListLen  tabuMaxIter tabuMaxIterNoImpr glMaxIter clusCrit
-    { 5,   800,  8, "",     0.0, 0.0, 10,       depth, random_type, tListLen, tClListLen, 1,          -1,               1,        clusCrit, toPrint, DEFAULT_FILENAME, DEFAULT_COMPACT_FILENAME },
+    { 5,   800,  8, "",     2.0, 2.0, 50,       depth, random_type, tListLen, tClListLen, 1,          -1,               1,        clusCrit, toPrint, DEFAULT_FILENAME, DEFAULT_COMPACT_FILENAME },
 };

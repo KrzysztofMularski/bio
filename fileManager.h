@@ -59,6 +59,16 @@ public:
         file.close();
     }
 
+    void write(const float& idealRating) {
+        ofstream file;
+        file.open(filename, ios::app);
+
+        file << "==========================================" << endl;
+        file << "Ideal rating (could be impossible to get due to all kind of errors): " << idealRating << endl;
+
+        file.close();
+    }
+
     void write(
         const string& header,
         const vector<Pair>& result,
@@ -136,6 +146,36 @@ public:
         file.close();
     }
 
+    void writeHeadersShort() {
+        ofstream file;
+        file.open(filename, ios::app);
+
+        file << "Instance No" << ";";
+        file << "n" << ";";
+        file << "k" << ";";
+        file << "Positive errors [%]" << ";";
+        file << "Negative errors [%]" << ";";
+        file << "Location range" << ";";
+        file << "Max tabu iterations" << ";";
+        file << "Max tabu iterations with no improvement" << ";";
+        file << "Global max iterations" << ";";
+        file << "DNA string" << ";";
+
+        file << "Ideal rating (Original vector length / Original DNA length)" << ";";
+
+        file << "(First solution) Levenshtein distance" << ";";
+        file << "(First solution) Global rating (Result vector length / Result DNA length)" << ";";
+        file << "(First solution) Result hash" << ";";
+
+        file << "(Best solution) Levenshtein distance" << ";";
+        file << "(Best solution) Global rating (Result vector length / Result DNA length)" << ";";
+        file << "(Best solution) Result hash" << ";";
+
+        file << "Duration of the instance [s]" << endl;
+
+        file.close();
+    }
+
     void writeCompact(const int& counter) {
         ofstream file;
         file.open(filename, ios::app);
@@ -154,15 +194,15 @@ public:
         file << POSITIVE_ERRORS_PERCENTAGE << ";";
         file << NEGATIVE_ERRORS_PERCENTAGE << ";";
         file << LOCATION_RANGE << ";";
-        string randomTypeString = (LOCATION_RANDOM_TYPE == Random_Type::LINEAR) ? "Linear" : "Gaussian";
-        file << randomTypeString << ";";
-        file << GREEDY_DEPTH << ";";
-        file << TABU_LIST_LENGTH << ";";
-        file << TABU_LIST_CLUSTERS_LENGTH << ";";
+        // string randomTypeString = (LOCATION_RANDOM_TYPE == Random_Type::LINEAR) ? "Linear" : "Gaussian";
+        // file << randomTypeString << ";";
+        // file << GREEDY_DEPTH << ";";
+        // file << TABU_LIST_LENGTH << ";";
+        // file << TABU_LIST_CLUSTERS_LENGTH << ";";
         file << MAX_TABU_ITERATIONS << ";";
         file << MAX_TABU_ITERATIONS_WITH_NO_IMPROVEMENT << ";";
         file << GLOBAL_MAX_ITERATIONS << ";";
-        file << CLUSTER_OVERLAP_CRITERION << ";";
+        // file << CLUSTER_OVERLAP_CRITERION << ";";
 
         file.close();
     }
@@ -171,12 +211,21 @@ public:
         ofstream file;
         file.open(filename, ios::app);
 
-        if (isRandomized) {
-            file << "Random" << ";";
-        } else {
-            file << "Not random" << ";";
-        }
+        // if (isRandomized) {
+        //     file << "Random" << ";";
+        // } else {
+        //     file << "Not random" << ";";
+        // }
         file << dna << ";";
+
+        file.close();
+    }
+
+    void writeCompact(const float& idealRating) {
+        ofstream file;
+        file.open(filename, ios::app);
+
+        file << idealRating << ";";
 
         file.close();
     }
@@ -191,12 +240,12 @@ public:
 
         string resultDNA = makeDNA(result, oligos);
         file << levenshteinDistance(dnaStr, resultDNA) << ";";
-        file << dnaStr.size() << ";";
-        file << oligos.size() << ";";
-        file << result.size() << ";";
-        file << resultDNA.size() << ";";
-        file << (double)resultDNA.size() / (double)dnaStr.size() << ";";
-        file << (double)result.size() / (double)oligos.size() << ";";
+        // file << dnaStr.size() << ";";
+        // file << oligos.size() << ";";
+        // file << result.size() << ";";
+        // file << resultDNA.size() << ";";
+        // file << (double)resultDNA.size() / (double)dnaStr.size() << ";";
+        // file << (double)result.size() / (double)oligos.size() << ";";
         file << (double)result.size() / (double)resultDNA.size() << ";";
         file << calcHash(result, oligos) << ";";
 
