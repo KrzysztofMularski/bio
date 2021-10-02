@@ -179,7 +179,9 @@ public:
 
         vector<size_t> tabuListClusters;
 
-        float idealRating = (float)(n-k+1) / (float)(n);
+        int spectrumSize = n - k + 1;
+        int posErrorsNumber = (int)((float)POSITIVE_ERRORS_PERCENTAGE / 100.0 * (float)spectrumSize + 0.5);
+        float idealRating = (float)(spectrumSize - posErrorsNumber) / (float)(n);
         startFile = clock();
         file.write(idealRating);
         fileCompact.writeCompact(idealRating);

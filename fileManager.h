@@ -64,7 +64,7 @@ public:
         file.open(filename, ios::app);
 
         file << "==========================================" << endl;
-        file << "Ideal rating (could be impossible to get due to all kind of errors): " << idealRating << endl;
+        file << "Ideal rating (could be very hard to get due to all kind of errors): " << idealRating << endl;
 
         file.close();
     }
@@ -120,6 +120,8 @@ public:
         file << "Cluster overlap criterion" << ";";
         file << "DNA randomness" << ";";
         file << "DNA string" << ";";
+
+        file << "Ideal rating (Original vector length / Original DNA length)" << ";";
 
         file << "(First solution) Levenshtein distance" << ";";
         file << "(First solution) Original DNA string length" << ";";
