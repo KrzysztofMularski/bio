@@ -219,6 +219,7 @@ public:
         //     file << "Not random" << ";";
         // }
         file << dna << ";";
+        // file << dna << endl;
 
         file.close();
     }

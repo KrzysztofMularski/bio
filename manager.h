@@ -105,6 +105,8 @@ public:
 
     void run(Instance ins) {
 
+        srand(1);
+
         clock_t start = clock();
 
         n = ins.dnaLength;
@@ -226,9 +228,8 @@ public:
             }
             tabuListClusters = greedy.getTabuListClusters();
             
-            TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
-
             if (i == 0) {
+                TO_PRINT & Printer::RESULTS_GREEDY && Printer::printResults("Greedy result", result, oligos, dnaStr);
                 startFile = clock();
                 file.write("First result (first greedy)", result, oligos, dnaStr);
                 fileCompact.writeCompact(result, oligos, dnaStr);

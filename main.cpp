@@ -4,7 +4,9 @@
 
 int main() {
     
-    srand(time(NULL));
+    // srand(time(NULL));
+
+    populateInstances();
     
     Manager manager(
         instances
